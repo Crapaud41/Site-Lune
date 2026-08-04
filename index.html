@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lune — Accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1026;
+    --bg-deep:#060814;
+    --gold:#e8c17a;
+    --gold-soft:#f0d9a8;
+    --ink:#eef0f8;
+    --ink-dim:#a9adc4;
+    --line:rgba(232,193,122,0.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-deep);
+    color:var(--ink);
+    font-family:'Work Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  /* --- NAV --- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 5vw;
+    background:linear-gradient(to bottom, rgba(6,8,20,0.75), transparent);
+    backdrop-filter:blur(2px);
+  }
+  .brand{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.5rem; letter-spacing:0.06em; color:var(--gold-soft);
+    font-weight:600;
+  }
+  .navlinks{list-style:none; display:flex; gap:2.6rem;}
+  .navlinks a{
+    color:var(--ink-dim); text-decoration:none; font-size:0.82rem;
+    letter-spacing:0.14em; text-transform:uppercase; font-weight:500;
+    position:relative; padding-bottom:4px; transition:color 0.25s;
+  }
+  .navlinks a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--gold); transition:width 0.3s ease;
+  }
+  .navlinks a:hover{color:var(--ink);}
+  .navlinks a:hover::after{width:100%;}
+  .navlinks a:focus-visible{outline:1px solid var(--gold); outline-offset:4px;}
+
+  /* --- HERO --- */
+  .hero{
+    position:relative; height:100vh; width:100%;
+    display:flex; align-items:flex-end; justify-content:flex-start;
+    overflow:hidden;
+  }
+  .hero-img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; filter:saturate(0.92) brightness(0.62);
+  }
+  .hero-overlay{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(6,8,20,0.15) 0%, rgba(6,8,20,0.15) 35%, rgba(6,8,20,0.92) 100%),
+               linear-gradient(90deg, rgba(6,8,20,0.55) 0%, rgba(6,8,20,0) 45%);
+  }
+  .hero-content{
+    position:relative; z-index:2; padding:0 5vw 4.5vw;
+    max-width:640px;
+  }
+  .eyebrow{
+    color:var(--gold); font-size:0.78rem; letter-spacing:0.22em;
+    text-transform:uppercase; margin-bottom:1rem; opacity:0.9;
+  }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:clamp(2.6rem, 6vw, 4.6rem);
+    line-height:1.05;
+    color:var(--ink);
+    margin-bottom:1.1rem;
+  }
+  h1 em{color:var(--gold-soft); font-style:italic;}
+  .hero-sub{
+    color:var(--ink-dim); font-size:1.02rem; max-width:460px; line-height:1.6;
+    font-weight:300;
+  }
+  .scroll-cue{
+    position:absolute; bottom:2.2rem; right:5vw; z-index:2;
+    color:var(--ink-dim); font-size:0.72rem; letter-spacing:0.16em;
+    text-transform:uppercase; writing-mode:vertical-rl;
+    display:flex; align-items:center; gap:0.6rem;
+    opacity:0.7;
+  }
+  .scroll-cue::after{
+    content:''; width:1px; height:38px; background:var(--gold);
+    animation:pulse-line 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-line{0%,100%{opacity:0.25;}50%{opacity:0.9;}}
+
+  /* --- WIDGET --- */
+  .widget-section{
+    position:relative;
+    background:var(--bg-deep);
+    padding:6rem 5vw 7rem;
+    display:flex; justify-content:center;
+  }
+  .widget-card{
+    width:100%; max-width:920px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:linear-gradient(180deg, rgba(232,193,122,0.035), transparent 60%);
+    padding:3.2rem clamp(1.5rem, 4vw, 4rem);
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:3.5rem;
+    align-items:center;
+  }
+  .moon-render{
+    width:150px; height:150px; flex-shrink:0;
+  }
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:2.2rem;
+  }
+  .stat-label{
+    font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--ink-dim); margin-bottom:0.5rem; font-weight:500;
+  }
+  .stat-value{
+    font-family:'Cormorant Garamond', serif;
+    font-size:2.1rem; color:var(--gold-soft); font-weight:600;
+    line-height:1;
+  }
+  .stat-value span{font-size:1rem; color:var(--ink-dim); font-family:'Work Sans',sans-serif; font-weight:300;}
+  .phase-name{
+    grid-column:1 / -1;
+    padding-top:1.6rem; margin-top:0.4rem;
+    border-top:1px solid var(--line);
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic; font-size:1.3rem; color:var(--ink);
+  }
+  .updated-at{
+    grid-column:1/-1;
+    font-size:0.7rem; color:var(--ink-dim); opacity:0.55; letter-spacing:0.04em;
+  }
+
+  @media (max-width: 720px){
+    .widget-card{grid-template-columns:1fr; text-align:center; justify-items:center;}
+    .stats-grid{grid-template-columns:1fr 1fr; gap:1.8rem;}
+    .navlinks{gap:1.4rem;}
+    .navlinks a{font-size:0.68rem;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">Lune</div>
+  <ul class="navlinks">
+    <li><a href="#accueil">Accueil</a></li>
+    <li><a href="photos.html">Photos</a></li>
+    <li><a href="materiel.html">Matériel</a></li>
+    <li><a href="#widget">Widget</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="accueil">
+  <img class="hero-img" src="hero.jpg" alt="Coucher de soleil sur un champ, photographié depuis la route">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="eyebrow">Six mois d'observation</div>
+    <h1>Regarder le ciel,<br><em>une nuit à la fois.</em></h1>
+    <p class="hero-sub">Plus de 600 photos de Lune prises au Celestron NexStar 90, entre balcon et routes de campagne. Ceci en est le carnet.</p>
+  </div>
+  <div class="scroll-cue">Défiler</div>
+</section>
+
+<section class="widget-section" id="widget">
+  <div class="widget-card">
+    <svg class="moon-render" id="moonSvg" viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <radialGradient id="moonGlow" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#3a3f5c" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#3a3f5c" stop-opacity="0"/>
+        </radialGradient>
+        <clipPath id="moonClip"><circle cx="100" cy="100" r="82"/></clipPath>
+      </defs>
+      <circle cx="100" cy="100" r="98" fill="url(#moonGlow)"/>
+      <circle cx="100" cy="100" r="82" fill="#1b1f38" stroke="rgba(232,193,122,0.25)" stroke-width="1"/>
+      <g clip-path="url(#moonClip)">
+        <path id="litPath" fill="#e8c17a" opacity="0.92"></path>
+      </g>
+      <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(232,193,122,0.35)" stroke-width="1"/>
+    </svg>
+
+    <div class="stats-grid">
+      <div>
+        <div class="stat-label">Illumination</div>
+        <div class="stat-value" id="statIllum">—<span>%</span></div>
+      </div>
+      <div>
+        <div class="stat-label">Distance</div>
+        <div class="stat-value" id="statDist">—<span> km</span></div>
+      </div>
+      <div>
+        <div class="stat-label">Âge</div>
+        <div class="stat-value" id="statAge">—<span> j</span></div>
+      </div>
+      <div class="phase-name" id="phaseName">Calcul en cours…</div>
+      <div class="updated-at" id="updatedAt"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ---------- Calcul de phase lunaire ---------- */
+// Référence : nouvelle lune connue (6 janvier 2000, 18:14 UTC — époque J2000 usuelle)
+const KNOWN_NEW_MOON = Date.UTC(2000, 0, 6, 18, 14, 0);
+const SYNODIC_MONTH = 29.530588853; // jours
+const ANOMALISTIC_MONTH = 27.554549878; // jours (cycle périgée-apogée)
+
+function getMoonData(date){
+  const daysSince = (date.getTime() - KNOWN_NEW_MOON) / 86400000;
+  let age = daysSince % SYNODIC_MONTH;
+  if (age < 0) age += SYNODIC_MONTH;
+
+  const phaseFraction = age / SYNODIC_MONTH; // 0 = nouvelle lune, 0.5 = pleine lune
+  const illumination = (1 - Math.cos(2 * Math.PI * phaseFraction)) / 2 * 100;
+
+  // Distance : approximation basée sur l'anomalie moyenne (précision ~±1000 km, suffisante ici)
+  let anomAge = daysSince % ANOMALISTIC_MONTH;
+  if (anomAge < 0) anomAge += ANOMALISTIC_MONTH;
+  const meanAnomaly = 2 * Math.PI * (anomAge / ANOMALISTIC_MONTH);
+  const distance = 385000.6 - 20905.4 * Math.cos(meanAnomaly);
+
+  let name;
+  if (phaseFraction < 0.02 || phaseFraction > 0.98) name = "Nouvelle lune";
+  else if (phaseFraction < 0.24) name = "Premier croissant";
+  else if (phaseFraction < 0.26) name = "Premier quartier";
+  else if (phaseFraction < 0.49) name = "Lune gibbeuse croissante";
+  else if (phaseFraction < 0.51) name = "Pleine lune";
+  else if (phaseFraction < 0.74) name = "Lune gibbeuse décroissante";
+  else if (phaseFraction < 0.76) name = "Dernier quartier";
+  else name = "Dernier croissant";
+
+  return { age, illumination, distance, phaseFraction, name };
+}
+
+/* ---------- Dessin SVG de la forme réelle ---------- */
+// p = phaseFraction (0 = nouvelle lune, 0.5 = pleine lune, 1 = nouvelle lune suivante)
+function drawMoonShape(p){
+  const cx = 100, cy = 100, r = 82;
+  const path = document.getElementById('litPath');
+
+  const theta = p * 2 * Math.PI;
+  const rx = Math.abs(r * Math.cos(theta));
+  const sweepOuter = p < 0.5 ? 1 : 0;
+  const sweepInner = (p < 0.25 || p > 0.75) ? sweepOuter : 1 - sweepOuter;
+
+  const d = `M ${cx} ${cy-r}
+             A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r}
+             A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z`;
+  path.setAttribute('d', d);
+}
+
+function updateWidget(){
+  const now = new Date();
+  const m = getMoonData(now);
+
+  document.getElementById('statIllum').innerHTML = m.illumination.toFixed(1) + '<span>%</span>';
+  document.getElementById('statDist').innerHTML = Math.round(m.distance).toLocaleString('fr-FR') + '<span> km</span>';
+  document.getElementById('statAge').innerHTML = m.age.toFixed(1) + '<span> j</span>';
+  document.getElementById('phaseName').textContent = m.name;
+  document.getElementById('updatedAt').textContent = 'Mis à jour ' + now.toLocaleTimeString('fr-FR');
+
+  drawMoonShape(m.phaseFraction);
+}
+
+updateWidget();
+setInterval(updateWidget, 60000); // rafraîchit chaque minute
+</script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lune — Matériel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg-deep:#060814;--gold:#e8c17a;--gold-soft:#f0d9a8;--ink:#eef0f8;--ink-dim:#a9adc4;--line:rgba(232,193,122,0.18);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg-deep);color:var(--ink);font-family:'Work Sans',sans-serif;min-height:100vh;}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:22px 5vw;border-bottom:1px solid var(--line);}
+  .brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;letter-spacing:0.06em;color:var(--gold-soft);font-weight:600;text-decoration:none;}
+  .navlinks{list-style:none;display:flex;gap:2.6rem;}
+  .navlinks a{color:var(--ink-dim);text-decoration:none;font-size:0.82rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;}
+  .navlinks a.active{color:var(--gold-soft);}
+  .navlinks a:hover{color:var(--ink);}
+  main{padding:6rem 5vw;text-align:center;}
+  h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.2rem);color:var(--ink);margin-bottom:1rem;font-weight:600;}
+  p{color:var(--ink-dim);max-width:480px;margin:0 auto;line-height:1.6;}
+  .note{margin-top:3rem;font-size:0.8rem;color:var(--gold-soft);opacity:0.7;letter-spacing:0.04em;}
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="index.html">Lune</a>
+  <ul class="navlinks">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="photos.html">Photos</a></li>
+    <li><a href="materiel.html" class="active">Matériel</a></li>
+    <li><a href="index.html#widget">Widget</a></li>
+  </ul>
+</nav>
+<main>
+  <h1>Le setup arrive ici</h1>
+  <p>Présentation du télescope, des filtres et du matériel utilisé pour les prises de vue.</p>
+  <div class="note">Prochaine étape à construire ensemble</div>
+</main>
+</body>
+</html>
