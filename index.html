@@ -28,7 +28,7 @@
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
   }
- 
+
   /* --- NAV --- */
   nav{
     position:fixed; top:0; left:0; right:0; z-index:100;
@@ -55,7 +55,7 @@
   .navlinks a:hover{color:var(--ink);}
   .navlinks a:hover::after{width:100%;}
   .navlinks a:focus-visible{outline:1px solid var(--gold); outline-offset:4px;}
- 
+
   /* --- HERO --- */
   .hero{
     position:relative; height:100vh; width:100%;
@@ -97,7 +97,7 @@
     color:var(--ink-dim); font-size:0.98rem; max-width:440px; line-height:1.6;
     font-weight:300;
   }
- 
+
   /* --- WIDGET (intégré au hero, visible sans scroll) --- */
   .widget-card{
     flex:0 0 auto;
@@ -141,7 +141,7 @@
     grid-column:1/-1;
     font-size:0.62rem; color:var(--ink-dim); opacity:0.55; letter-spacing:0.04em;
   }
- 
+
   @media (max-width: 900px){
     .hero{align-items:center;}
     .hero-bottom{flex-direction:column; align-items:center; text-align:center; padding-bottom:2.4rem;}
@@ -158,28 +158,28 @@
 </style>
 </head>
 <body>
- 
+
 <nav>
   <div class="brand">Lune</div>
   <ul class="navlinks">
     <li><a href="#accueil">Accueil</a></li>
     <li><a href="photos.html">Photos</a></li>
     <li><a href="materiel.html">Matériel</a></li>
-    <li><a href="#widget">Widget</a></li>
+    <li><a href="widget.html">Widget</a></li>
   </ul>
 </nav>
- 
+
 <section class="hero" id="accueil">
   <img class="hero-img" src="hero.jpg" alt="Coucher de soleil sur un champ, photographié depuis la route">
   <div class="hero-overlay"></div>
- 
+
   <div class="hero-bottom">
     <div class="hero-content">
       <div class="eyebrow">Mon observation de la lune</div>
       <h1>Lève la tête,<br><em>apprécie la lune.</em></h1>
       <p class="hero-sub">Mes photos de la lune au télescope.</p>
     </div>
- 
+
     <div class="widget-card" id="widget">
       <svg class="moon-render" id="moonSvg" viewBox="0 0 200 200" aria-hidden="true">
         <defs>
@@ -196,7 +196,7 @@
         </g>
         <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(232,193,122,0.35)" stroke-width="1"/>
       </svg>
- 
+
       <div class="stats-grid">
         <div>
           <div class="stat-label">Illumination</div>
@@ -216,23 +216,23 @@
     </div>
   </div>
 </section>
- 
+
 <script src="astronomy.min.js"></script>
 <script>
 /* ---------- Calcul de phase lunaire (Astronomy Engine — précision réelle) ---------- */
 const KM_PER_AU = 149597870.7;
- 
+
 function getMoonData(date){
   const illum = Astronomy.Illumination(Astronomy.Body.Moon, date);
   const illumination = illum.phase_fraction * 100; // 0-100 %
   const distance = illum.geo_dist * KM_PER_AU; // km
- 
+
   const phaseAngle = Astronomy.MoonPhase(date); // 0-360°, 0=nouvelle, 180=pleine
   const phaseFraction = phaseAngle / 360; // pour le dessin SVG
- 
+
   const prevNewMoon = Astronomy.SearchMoonPhase(0, date, -40);
   const age = (date.getTime() - prevNewMoon.date.getTime()) / 86400000;
- 
+
   let name;
   if (phaseAngle < 6 || phaseAngle > 354) name = "Nouvelle lune";
   else if (phaseAngle < 84) name = "Premier croissant";
@@ -242,43 +242,43 @@ function getMoonData(date){
   else if (phaseAngle < 264) name = "Lune gibbeuse décroissante";
   else if (phaseAngle < 276) name = "Dernier quartier";
   else name = "Dernier croissant";
- 
+
   return { age, illumination, distance, phaseFraction, name };
 }
- 
+
 /* ---------- Dessin SVG de la forme réelle ---------- */
 // p = phaseFraction (0 = nouvelle lune, 0.5 = pleine lune, 1 = nouvelle lune suivante)
 function drawMoonShape(p){
   const cx = 100, cy = 100, r = 82;
   const path = document.getElementById('litPath');
- 
+
   const theta = p * 2 * Math.PI;
   const rx = Math.abs(r * Math.cos(theta));
   const sweepOuter = p < 0.5 ? 1 : 0;
-  const sweepInner = (p < 0.25 || p > 0.75) ? sweepOuter : 1 - sweepOuter;
- 
+  const sweepInner = (p < 0.25 || p > 0.75) ? (1 - sweepOuter) : sweepOuter;
+
   const d = `M ${cx} ${cy-r}
              A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r}
              A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z`;
   path.setAttribute('d', d);
 }
- 
+
 function updateWidget(){
   const now = new Date();
   const m = getMoonData(now);
- 
+
   document.getElementById('statIllum').innerHTML = m.illumination.toFixed(1) + '<span>%</span>';
   document.getElementById('statDist').innerHTML = Math.round(m.distance).toLocaleString('fr-FR') + '<span> km</span>';
   document.getElementById('statAge').innerHTML = m.age.toFixed(1) + '<span> j</span>';
   document.getElementById('phaseName').textContent = m.name;
   document.getElementById('updatedAt').textContent = 'Mis à jour ' + now.toLocaleTimeString('fr-FR');
- 
+
   drawMoonShape(m.phaseFraction);
 }
- 
+
 updateWidget();
 setInterval(updateWidget, 60000); // rafraîchit chaque minute
 </script>
- 
+
 </body>
 </html>
