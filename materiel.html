@@ -9,8 +9,14 @@
 <style>
   :root{--bg-deep:#060814;--gold:#e8c17a;--gold-soft:#f0d9a8;--ink:#eef0f8;--ink-dim:#a9adc4;--line:rgba(232,193,122,0.18);}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg-deep);color:var(--ink);font-family:'Work Sans',sans-serif;min-height:100vh;}
-  nav{display:flex;align-items:center;justify-content:space-between;padding:22px 5vw;border-bottom:1px solid var(--line);}
+  body{
+    color:var(--ink);font-family:'Work Sans',sans-serif;min-height:100vh;
+    background:
+      linear-gradient(180deg, rgba(6,8,20,0.88) 0%, rgba(6,8,20,0.75) 40%, rgba(6,8,20,0.94) 100%),
+      url('bg-field.jpg');
+    background-size:cover; background-position:center; background-attachment:fixed;
+  }
+  nav{display:flex;align-items:center;justify-content:space-between;padding:22px 5vw;border-bottom:1px solid var(--line);background:rgba(6,8,20,0.35);backdrop-filter:blur(4px);}
   .brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;letter-spacing:0.06em;color:var(--gold-soft);font-weight:600;text-decoration:none;}
   .navlinks{list-style:none;display:flex;gap:2.6rem;}
   .navlinks a{color:var(--ink-dim);text-decoration:none;font-size:0.82rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;}
@@ -29,7 +35,7 @@
     <li><a href="index.html">Accueil</a></li>
     <li><a href="photos.html">Photos</a></li>
     <li><a href="materiel.html" class="active">Matériel</a></li>
-    <li><a href="index.html#widget">Widget</a></li>
+    <li><a href="widget.html">Widget</a></li>
   </ul>
 </nav>
 <main>
