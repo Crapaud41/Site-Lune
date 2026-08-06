@@ -53,15 +53,27 @@
   .navlinks a:hover{color:var(--ink);}
 
   main{
-    padding:2.4rem 5vw; max-width:1300px; margin:0 auto;
+    padding:2.4rem 5vw;
     min-height:calc(100vh - 73px);
     display:flex; align-items:center;
   }
   .widget-layout{
-    display:grid; grid-template-columns:1.3fr 1fr; gap:3rem;
-    align-items:center; width:100%;
+    display:grid; grid-template-columns:1.15fr 0.65fr 1fr; gap:2.5rem;
+    align-items:start; width:100%;
   }
   .phases-section{display:flex; flex-direction:column; gap:1.2rem;}
+
+  /* --- Lune du jour --- */
+  .moon-today{
+    align-self:center; display:flex; flex-direction:column;
+    align-items:center; gap:0.9rem; padding-top:2.4rem;
+  }
+  .moon-today-visual{width:min(180px, 80%);}
+  .moon-today-caption{text-align:center;}
+  .moon-today-percent{
+    font-family:'Cormorant Garamond', serif; font-size:1.6rem; color:var(--gold-soft); font-weight:600;
+  }
+  .moon-today-name{font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); margin-top:0.2rem;}
 
   h2{
     font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
@@ -109,7 +121,8 @@
 
   @media (max-width: 900px){
     main{min-height:auto; display:block; padding:2rem 5vw 3rem;}
-    .widget-layout{grid-template-columns:1fr; gap:2rem;}
+    .widget-layout{grid-template-columns:1fr; gap:2.4rem;}
+    .moon-today{padding-top:0;}
   }
 
   @media (max-width: 720px){
@@ -141,6 +154,14 @@
       </div>
       <div class="cal-grid" id="calGrid"></div>
     </section>
+
+    <div class="moon-today">
+      <div class="moon-today-visual" id="moonTodayVisual"></div>
+      <div class="moon-today-caption">
+        <div class="moon-today-percent" id="moonTodayPercent">—%</div>
+        <div class="moon-today-name" id="moonTodayName">—</div>
+      </div>
+    </div>
 
     <section class="phases-section">
       <h2>Prochaines phases clés</h2>
@@ -239,10 +260,64 @@ function buildCalendar(){
   }
 }
 
+/* ---------- Grande lune du jour, texturée (cratères) ---------- */
+function bigMoonSVG(phaseFraction){
+  const r = 90, cx = 100, cy = 100;
+  const theta = phaseFraction * 2 * Math.PI;
+  const rx = Math.abs(r * Math.cos(theta));
+  const sweepOuter = phaseFraction < 0.5 ? 1 : 0;
+  const sweepInner = (phaseFraction < 0.25 || phaseFraction > 0.75) ? (1 - sweepOuter) : sweepOuter;
+  const d = `M ${cx} ${cy-r} A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z`;
+  const uid = Math.random().toString(36).slice(2);
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="dc-${uid}"><circle cx="100" cy="100" r="${r}"/></clipPath>
+      <filter id="cf-${uid}" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" seed="7" result="noise"/>
+        <feDiffuseLighting in="noise" lighting-color="#ffffff" surfaceScale="3" diffuseConstant="1.1" result="light">
+          <feDistantLight azimuth="235" elevation="55"/>
+        </feDiffuseLighting>
+      </filter>
+      <radialGradient id="glow-${uid}" cx="50%" cy="50%" r="60%">
+        <stop offset="0%" stop-color="#3a3f5c" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#3a3f5c" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="100" cy="100" r="98" fill="url(#glow-${uid})"/>
+    <circle cx="100" cy="100" r="${r}" fill="#1b1f38"/>
+    <path d="${d}" fill="#e8c17a" clip-path="url(#dc-${uid})"/>
+    <g clip-path="url(#dc-${uid})">
+      <rect x="0" y="0" width="200" height="200" filter="url(#cf-${uid})" style="mix-blend-mode:overlay;opacity:0.45"/>
+    </g>
+    <circle cx="100" cy="100" r="${r}" fill="none" stroke="rgba(232,193,122,0.4)" stroke-width="1.5"/>
+  </svg>`;
+}
+
+function phaseNameFor(angle){
+  if (angle < 6 || angle > 354) return "Nouvelle lune";
+  if (angle < 84) return "Premier croissant";
+  if (angle < 96) return "Premier quartier";
+  if (angle < 174) return "Lune gibbeuse croissante";
+  if (angle < 186) return "Pleine lune";
+  if (angle < 264) return "Lune gibbeuse décroissante";
+  if (angle < 276) return "Dernier quartier";
+  return "Dernier croissant";
+}
+
+function buildMoonToday(){
+  const now = new Date();
+  const angle = Astronomy.MoonPhase(now);
+  const illum = Astronomy.Illumination(Astronomy.Body.Moon, now);
+  document.getElementById('moonTodayVisual').innerHTML = bigMoonSVG(angle / 360);
+  document.getElementById('moonTodayPercent').textContent = `${(illum.phase_fraction*100).toFixed(0)}%`;
+  document.getElementById('moonTodayName').textContent = phaseNameFor(angle);
+}
+
 initCountdownTargets();
 tickCountdowns();
 setInterval(tickCountdowns, 1000);
 buildCalendar();
+buildMoonToday();
 </script>
 
 </body>
