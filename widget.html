@@ -52,23 +52,24 @@
   .navlinks a.active{color:var(--gold-soft);}
   .navlinks a:hover{color:var(--ink);}
 
-  main{padding:4rem 5vw 6rem; max-width:1100px; margin:0 auto;}
-  .page-title{
-    font-family:'Cormorant Garamond', serif; font-weight:600;
-    font-size:clamp(2rem, 4vw, 2.8rem); margin-bottom:0.6rem;
+  main{
+    padding:2.4rem 5vw; max-width:1300px; margin:0 auto;
+    min-height:calc(100vh - 73px);
+    display:flex; align-items:center;
   }
-  .page-sub{color:var(--ink-dim); margin-bottom:3rem; font-weight:300;}
+  .widget-layout{
+    display:grid; grid-template-columns:1.3fr 1fr; gap:3rem;
+    align-items:center; width:100%;
+  }
+  .phases-section{display:flex; flex-direction:column; gap:1.2rem;}
 
   h2{
     font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
     font-size:1.4rem; color:var(--gold-soft); margin-bottom:1.2rem;
   }
-  section{margin-bottom:4rem;}
+  section{margin-bottom:0;}
 
   /* --- Comptes à rebours --- */
-  .countdown-grid{
-    display:grid; grid-template-columns:1fr 1fr; gap:1.4rem;
-  }
   .countdown-card{
     border:1px solid var(--line); padding:1.8rem 1.6rem;
     background:linear-gradient(180deg, rgba(232,193,122,0.035), transparent 60%);
@@ -106,26 +107,17 @@
   .cal-daynum{font-size:0.66rem; color:var(--ink-dim); position:absolute; top:4px; left:6px;}
   .cal-day svg{width:60%; height:60%; margin-top:6px;}
 
-  /* --- Événements --- */
-  .events-list{display:flex; flex-direction:column; gap:1rem;}
-  .event-card{
-    border:1px solid var(--line); padding:1.4rem 1.6rem;
-    display:flex; justify-content:space-between; align-items:center; gap:1rem;
-    flex-wrap:wrap;
+  @media (max-width: 900px){
+    main{min-height:auto; display:block; padding:2rem 5vw 3rem;}
+    .widget-layout{grid-template-columns:1fr; gap:2rem;}
   }
-  .event-name{font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.15rem; color:var(--ink);}
-  .event-date{font-size:0.8rem; color:var(--gold-soft); margin-top:0.3rem;}
-  .event-meta{font-size:0.72rem; color:var(--ink-dim); text-align:right;}
 
   @media (max-width: 720px){
-    .countdown-grid{grid-template-columns:1fr;}
     nav{grid-template-columns:auto 1fr; padding:16px 5vw;}
     .navlinks{justify-self:end; gap:1rem;}
     .navlinks a{font-size:0.62rem;}
     .brand{font-size:1.2rem;}
     .cal-day svg{width:50%; height:50%;}
-    .event-card{flex-direction:column; align-items:flex-start;}
-    .event-meta{text-align:left;}
   }
 </style>
 </head>
@@ -142,12 +134,16 @@
 </nav>
 
 <main>
-  <div class="page-title">Le ciel, à l'avance</div>
-  <p class="page-sub">Calendrier des phases, comptes à rebours et prochains événements à observer.</p>
+  <div class="widget-layout">
+    <section class="cal-section">
+      <div class="cal-header">
+        <div class="cal-month" id="calMonth">—</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </section>
 
-  <section>
-    <h2>Prochaines phases clés</h2>
-    <div class="countdown-grid">
+    <section class="phases-section">
+      <h2>Prochaines phases clés</h2>
       <div class="countdown-card">
         <div class="countdown-label">Prochaine pleine lune</div>
         <div class="countdown-timer" id="cdFull">—</div>
@@ -158,22 +154,8 @@
         <div class="countdown-timer" id="cdNew">—</div>
         <div class="countdown-date" id="cdNewDate"></div>
       </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="cal-header">
-      <div class="cal-month" id="calMonth">—</div>
-    </div>
-    <div class="cal-grid" id="calGrid"></div>
-  </section>
-
-  <section>
-    <h2>Événements à venir</h2>
-    <div class="events-list" id="eventsList">
-      <div class="event-card"><div class="event-name">Calcul en cours…</div></div>
-    </div>
-  </section>
+    </section>
+  </div>
 </main>
 
 <script src="astronomy.min.js"></script>
@@ -257,66 +239,10 @@ function buildCalendar(){
   }
 }
 
-/* ---------- Événements : superlune + éclipse ---------- */
-function findNextSupermoon(){
-  const THRESHOLD_KM = 361000;
-  let t = new Date();
-  for (let i = 0; i < 14; i++){
-    const full = Astronomy.SearchMoonPhase(180, t, 35);
-    const illum = Astronomy.Illumination(Astronomy.Body.Moon, full.date);
-    const distKm = illum.geo_dist * KM_PER_AU;
-    if (distKm < THRESHOLD_KM){
-      return { date: full.date, distKm };
-    }
-    t = full.AddDays(2);
-  }
-  return null;
-}
-
-function findNextEclipse(){
-  const now = new Date();
-  const ecl = Astronomy.SearchLunarEclipse(now);
-  const eq = Astronomy.Equator(Astronomy.Body.Moon, ecl.peak.date, ORLEANS, true, true);
-  const hor = Astronomy.Horizon(ecl.peak.date, ORLEANS, eq.ra, eq.dec, 'normal');
-  const visible = hor.altitude > 0;
-  return { date: ecl.peak.date, kind: ecl.kind, visible, altitude: hor.altitude };
-}
-
-function buildEvents(){
-  const list = document.getElementById('eventsList');
-  const items = [];
-
-  const superm = findNextSupermoon();
-  if (superm){
-    items.push(`
-      <div class="event-card">
-        <div>
-          <div class="event-name">Prochaine superlune</div>
-          <div class="event-date">${superm.date.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'})}</div>
-        </div>
-        <div class="event-meta">${Math.round(superm.distKm).toLocaleString('fr-FR')} km<br>Pleine lune au plus proche de la Terre</div>
-      </div>`);
-  }
-
-  const eclipse = findNextEclipse();
-  const kindNames = { total: 'Éclipse lunaire totale', partial: 'Éclipse lunaire partielle', penumbral: 'Éclipse lunaire pénombrale' };
-  items.push(`
-    <div class="event-card">
-      <div>
-        <div class="event-name">${kindNames[eclipse.kind] || 'Éclipse lunaire'}</div>
-        <div class="event-date">${eclipse.date.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'})}</div>
-      </div>
-      <div class="event-meta">${eclipse.visible ? 'Visible depuis la France' : 'Non visible depuis la France'}<br>(lune à ${eclipse.altitude.toFixed(0)}° d'altitude au pic, vue d'Orléans)</div>
-    </div>`);
-
-  list.innerHTML = items.join('');
-}
-
 initCountdownTargets();
 tickCountdowns();
 setInterval(tickCountdowns, 1000);
 buildCalendar();
-buildEvents();
 </script>
 
 </body>
