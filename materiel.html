@@ -5,36 +5,142 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lune — Matériel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root{--bg-deep:#060814;--gold:#e8c17a;--gold-soft:#f0d9a8;--ink:#eef0f8;--ink-dim:#a9adc4;--line:rgba(232,193,122,0.18);}
+  :root{
+    --bg-deep:#060814;
+    --gold:#e8c17a;
+    --gold-soft:#f0d9a8;
+    --ink:#eef0f8;
+    --ink-dim:#a9adc4;
+    --line:rgba(232,193,122,0.18);
+  }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
-    color:var(--ink);font-family:'Work Sans',sans-serif;min-height:100vh;
-    background:
-      linear-gradient(180deg, rgba(6,8,20,0.88) 0%, rgba(6,8,20,0.75) 40%, rgba(6,8,20,0.94) 100%),
-      url('bg-field.jpg');
-    background-size:cover; background-position:center; background-attachment:fixed;
+    background:var(--bg-deep);
+    color:var(--ink);
+    font-family:'Work Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
   }
-  nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:22px 5vw;border-bottom:1px solid var(--line);background:rgba(6,8,20,0.35);backdrop-filter:blur(4px);}
-  .brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;letter-spacing:0.06em;color:var(--gold-soft);font-weight:600;text-decoration:none;}
-  .navlinks{list-style:none;display:flex;gap:2.6rem;}
-  .navlinks a{color:var(--ink-dim);text-decoration:none;font-size:0.82rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
+    padding:22px 5vw;
+    background:linear-gradient(to bottom, rgba(6,8,20,0.75), transparent);
+    backdrop-filter:blur(2px);
+  }
+  .brand{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.5rem; letter-spacing:0.06em; color:var(--gold-soft);
+    font-weight:600; text-decoration:none;
+  }
+  .navlinks{list-style:none; display:flex; gap:2.6rem;}
+  .navlinks a{
+    color:var(--ink-dim); text-decoration:none; font-size:0.82rem;
+    letter-spacing:0.14em; text-transform:uppercase; font-weight:500;
+    position:relative; padding-bottom:4px; transition:color 0.25s;
+  }
   .navlinks a.active{color:var(--gold-soft);}
+  .navlinks a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--gold); transition:width 0.3s ease;
+  }
   .navlinks a:hover{color:var(--ink);}
-  main{padding:6rem 5vw;text-align:center;}
-  h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.2rem);color:var(--ink);margin-bottom:1rem;font-weight:600;}
-  p{color:var(--ink-dim);max-width:480px;margin:0 auto;line-height:1.6;}
-  .note{margin-top:3rem;font-size:0.8rem;color:var(--gold-soft);opacity:0.7;letter-spacing:0.04em;}
-  @media (max-width: 720px){
-    nav{grid-template-columns:auto 1fr;padding:16px 5vw;}
-    .navlinks{justify-self:end;gap:0.9rem;}
+  .navlinks a:hover::after{width:100%;}
+
+  .hero{
+    position:relative; height:100vh; width:100%;
+    display:flex; align-items:flex-end; justify-content:flex-start;
+    overflow:hidden;
+  }
+  .hero-img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; filter:saturate(0.92) brightness(0.62);
+  }
+  .hero-overlay{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(6,8,20,0.15) 0%, rgba(6,8,20,0.15) 35%, rgba(6,8,20,0.92) 100%),
+               linear-gradient(90deg, rgba(6,8,20,0.55) 0%, rgba(6,8,20,0) 45%);
+  }
+  .hero-bottom{
+    position:relative; z-index:2; width:100%;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:2.5rem; flex-wrap:wrap;
+    padding:0 5vw 3.2vw;
+  }
+  .hero-content{max-width:560px;}
+  .eyebrow{
+    color:var(--gold); font-size:0.78rem; letter-spacing:0.22em;
+    text-transform:uppercase; margin-bottom:1rem; opacity:0.9;
+  }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:clamp(2.2rem, 4.6vw, 3.6rem);
+    line-height:1.05;
+    color:var(--ink);
+    margin-bottom:1.1rem;
+  }
+  .hero-sub{
+    color:var(--ink-dim); font-size:0.98rem; max-width:440px; line-height:1.6;
+    font-weight:300;
+  }
+
+  /* --- Carte specs télescope --- */
+  .specs-card{
+    flex:0 0 auto;
+    width:min(480px, 100%);
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:rgba(6,8,20,0.55);
+    backdrop-filter:blur(6px);
+    padding:1.8rem clamp(1.2rem, 2.4vw, 2.2rem);
+  }
+  .specs-title{
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    font-size:1.15rem; color:var(--gold-soft); margin-bottom:1.2rem;
+  }
+  .specs-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:1.1rem;
+  }
+  .spec-label{
+    font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--ink-dim); margin-bottom:0.35rem; font-weight:500;
+  }
+  .spec-value{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.35rem; color:var(--gold-soft); font-weight:600; line-height:1;
+  }
+  .spec-value span{font-size:0.7rem; color:var(--ink-dim); font-family:'Work Sans',sans-serif; font-weight:300;}
+  .specs-name{
+    grid-column:1 / -1;
+    padding-top:0.9rem; margin-top:1rem;
+    border-top:1px solid var(--line);
+    font-size:0.82rem; color:var(--ink);
+  }
+
+  @media (max-width: 900px){
+    .hero{align-items:center;}
+    .hero-bottom{flex-direction:column; align-items:center; text-align:center; padding-bottom:2.4rem;}
+    .hero-content{max-width:100%;}
+    .hero-sub{margin:0 auto;}
+    .specs-card{width:100%;}
+    .specs-grid{grid-template-columns:1fr 1fr; gap:1rem;}
+    .navlinks{gap:0.9rem;}
     .navlinks a{font-size:0.6rem;}
+    nav{grid-template-columns:auto 1fr; padding:16px 5vw;}
+    .navlinks{justify-self:end;}
     .brand{font-size:1.2rem;}
   }
 </style>
 </head>
 <body>
+
 <nav>
   <a class="brand" href="index.html">Lune</a>
   <ul class="navlinks">
@@ -44,10 +150,38 @@
     <li><a href="widget.html">Widget</a></li>
   </ul>
 </nav>
-<main>
-  <h1>Le setup arrive ici</h1>
-  <p>Présentation du télescope, des filtres et du matériel utilisé pour les prises de vue.</p>
-  <div class="note">Prochaine étape à construire ensemble</div>
-</main>
+
+<section class="hero">
+  <img class="hero-img" src="bg-field.jpg" alt="Champ de tournesols au coucher du soleil">
+  <div class="hero-overlay"></div>
+
+  <div class="hero-bottom">
+    <div class="hero-content">
+      <div class="eyebrow">Comment j'observe la lune</div>
+      <h1>Voici le matériel utilisé.</h1>
+      <p class="hero-sub">Tout y est détaillé.</p>
+    </div>
+
+    <div class="specs-card">
+      <div class="specs-title">Celestron NexStar 90</div>
+      <div class="specs-grid">
+        <div>
+          <div class="spec-label">Ouverture</div>
+          <div class="spec-value">90<span> mm</span></div>
+        </div>
+        <div>
+          <div class="spec-label">Focale</div>
+          <div class="spec-value">1250<span> mm</span></div>
+        </div>
+        <div>
+          <div class="spec-label">Rapport</div>
+          <div class="spec-value">f/13.9</div>
+        </div>
+        <div class="specs-name">Maksutov-Cassegrain — kit filtres et oculaires complet</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 </body>
 </html>
