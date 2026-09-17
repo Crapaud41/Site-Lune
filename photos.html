@@ -116,12 +116,14 @@
   .gallery-card{
     position:relative; aspect-ratio:1; border:1px solid var(--line);
     background:rgba(255,255,255,0.03); overflow:hidden;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5rem;
-    color:var(--ink-dim); font-size:0.7rem; letter-spacing:0.04em;
     cursor:pointer; transition:transform 0.35s ease, border-color 0.3s;
   }
+  .gallery-card img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform 0.5s ease;
+  }
   .gallery-card:hover{transform:scale(1.035); border-color:var(--gold);}
-  .gallery-card .ph-icon{font-size:1.6rem; opacity:0.5; transition:opacity 0.3s;}
+  .gallery-card:hover img{transform:scale(1.08);}
   .card-overlay{
     position:absolute; inset:0; z-index:2;
     display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
@@ -133,6 +135,11 @@
   .gallery-card:hover .card-overlay{opacity:1;}
   .card-overlay .ov-sub{color:var(--gold-soft); font-size:0.72rem; font-style:italic; font-family:'Cormorant Garamond',serif;}
   .card-overlay .ov-date{color:var(--ink-dim); font-size:0.62rem; margin-top:0.2rem;}
+  .gallery-loading, .gallery-empty{
+    grid-column:1/-1; text-align:center; color:var(--ink-dim);
+    font-style:italic; font-family:'Cormorant Garamond',serif; font-size:1.1rem;
+    padding:3rem 0;
+  }
 
   /* --- Lightbox --- */
   #lightbox{
@@ -143,13 +150,16 @@
   #lightbox.visible{display:flex;}
   .lightbox-content{
     background:#0d1024; border:1px solid var(--line);
-    width:min(480px, 90vw); aspect-ratio:1;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.8rem;
-    position:relative;
+    max-width:min(720px, 90vw); max-height:85vh;
+    display:flex; flex-direction:column; align-items:center;
+    position:relative; overflow:hidden;
   }
-  .lightbox-content .lb-icon{font-size:3rem; opacity:0.5;}
+  .lightbox-content img{
+    max-width:100%; max-height:70vh; object-fit:contain; display:block;
+  }
+  .lb-caption{ padding:1rem 1.4rem 1.2rem; text-align:center; }
   .lightbox-content .lb-sub{font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.3rem; color:var(--gold-soft);}
-  .lightbox-content .lb-date{font-size:0.78rem; color:var(--ink-dim);}
+  .lightbox-content .lb-date{font-size:0.78rem; color:var(--ink-dim); margin-top:0.3rem;}
   .lightbox-close{
     position:absolute; top:-2.6rem; right:0; background:none; border:none;
     color:var(--ink-dim); font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase;
@@ -208,9 +218,11 @@
 <div id="lightbox">
   <div class="lightbox-content">
     <button class="lightbox-close" id="lightboxClose">✕ Fermer</button>
-    <div class="lb-icon">🖼️</div>
-    <div class="lb-sub" id="lbSub">—</div>
-    <div class="lb-date" id="lbDate"></div>
+    <img id="lbImg" src="" alt="">
+    <div class="lb-caption">
+      <div class="lb-sub" id="lbSub">—</div>
+      <div class="lb-date" id="lbDate"></div>
+    </div>
   </div>
 </div>
 
@@ -276,27 +288,81 @@ const CATEGORY_META = {
   lune: {
     subLabels: ['Pleine lune', 'Autre phase'],
     tabEmojis: ['🌕', '🌗'],
+    folderSlugs: ['pleine-lune', 'autre-phase'],
     showDate: true
   },
   nature: {
     subLabels: ['Coucher de soleil', 'Fleurs', 'Animaux'],
     tabEmojis: ['🌞', '🌹', '🐸'],
+    folderSlugs: ['coucher-de-soleil', 'fleurs', 'animaux'],
     showDate: true
   }
 };
 
-let currentCategory = null;
-let currentFilter = 'all';
+const GITHUB_OWNER = 'Crapaud41';
+const GITHUB_REPO = 'Site-Lune';
+const IMG_EXT = /\.(jpe?g|png|webp|gif)$/i;
+const FR_MONTHS = {
+  janvier:0, février:1, fevrier:1, mars:2, avril:3, mai:4, juin:5,
+  juillet:6, août:7, aout:7, septembre:8, octobre:9, novembre:10, décembre:11, decembre:11
+};
 
-function buildPlaceholderData(category){
-  // 12 emplacements en attente de vraies photos, répartis sur les sous-catégories réelles
-  const n = CATEGORY_META[category].subLabels.length;
-  const items = [];
-  for (let i = 0; i < 12; i++){
-    items.push({ sub: i % n, date: null });
+function parseDateFromFilename(name){
+  const base = name.replace(/\.[^.]+$/, '').trim();
+  let m = base.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  m = base.match(/^(\d{1,2})\s+([A-Za-zÀ-ÿ]+)\s+(\d{4})$/);
+  if (m){
+    const mon = FR_MONTHS[m[2].toLowerCase()];
+    if (mon !== undefined) return new Date(+m[3], mon, +m[1]);
   }
+  return null;
+}
+
+async function fetchFolder(category, subIndex, slug){
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/photos/${category}/${slug}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+    return data
+      .filter(f => f.type === 'file' && IMG_EXT.test(f.name))
+      .map(f => {
+        const d = parseDateFromFilename(f.name);
+        return {
+          url: f.download_url,
+          name: f.name,
+          sub: subIndex,
+          date: d,
+          dateLabel: d ? d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'}) : null
+        };
+      });
+  } catch(e){
+    return [];
+  }
+}
+
+const galleryCache = {};
+
+async function fetchCategoryPhotos(category){
+  if (galleryCache[category]) return galleryCache[category];
+  const meta = CATEGORY_META[category];
+  const results = await Promise.all(meta.folderSlugs.map((slug, i) => fetchFolder(category, i, slug)));
+  const items = results.flat();
+  items.sort((a, b) => {
+    if (a.date && b.date) return b.date - a.date;
+    if (a.date) return -1;
+    if (b.date) return 1;
+    return 0;
+  });
+  galleryCache[category] = items;
   return items;
 }
+
+let currentCategory = null;
+let currentFilter = 'all';
+let currentItems = [];
 
 function buildFilterTabs(category){
   const meta = CATEGORY_META[category];
@@ -319,34 +385,38 @@ function buildFilterTabs(category){
 function renderGrid(){
   const meta = CATEGORY_META[currentCategory];
   const grid = document.getElementById('galleryGrid');
-  const items = buildPlaceholderData(currentCategory).filter(it =>
-    currentFilter === 'all' || it.sub === Number(currentFilter)
-  );
+  const items = currentItems.filter(it => currentFilter === 'all' || it.sub === Number(currentFilter));
   grid.innerHTML = '';
+  if (items.length === 0){
+    grid.innerHTML = `<div class="gallery-empty">Aucune photo pour l'instant dans cette catégorie.</div>`;
+    return;
+  }
   items.forEach(item => {
     const card = document.createElement('div');
     card.className = 'gallery-card';
     const subLabel = meta.subLabels[item.sub];
-    const dateHtml = (meta.showDate && item.date) ? `<div class="ov-date">${item.date}</div>` : '';
+    const dateHtml = (meta.showDate && item.dateLabel) ? `<div class="ov-date">${item.dateLabel}</div>` : '';
     card.innerHTML = `
-      <div class="ph-icon">🖼️</div><div>Photo à venir</div>
+      <img src="${item.url}" alt="${subLabel}" loading="lazy">
       <div class="card-overlay">
         <div class="ov-sub">${meta.tabEmojis[item.sub]} ${subLabel}</div>
         ${dateHtml}
       </div>`;
-    card.addEventListener('click', () => openLightbox(subLabel, meta.showDate ? item.date : null));
+    card.addEventListener('click', () => openLightbox(item.url, subLabel, meta.showDate ? item.dateLabel : null));
     grid.appendChild(card);
   });
 }
 
-function openGallery(category){
+async function openGallery(category){
   currentCategory = category;
   currentFilter = 'all';
   document.getElementById('galleryTitle').textContent = GALLERY_TITLES[category];
   buildFilterTabs(category);
-  renderGrid();
   document.getElementById('albumView').classList.add('hidden');
   document.getElementById('galleryView').classList.add('visible');
+  document.getElementById('galleryGrid').innerHTML = `<div class="gallery-loading">Chargement des photos…</div>`;
+  currentItems = await fetchCategoryPhotos(category);
+  renderGrid();
 }
 
 function closeGallery(){
@@ -364,7 +434,8 @@ function closeGallery(){
 document.getElementById('backBtn').addEventListener('click', closeGallery);
 
 /* ---------- Lightbox ---------- */
-function openLightbox(subLabel, date){
+function openLightbox(url, subLabel, date){
+  document.getElementById('lbImg').src = url;
   document.getElementById('lbSub').textContent = subLabel;
   document.getElementById('lbDate').textContent = date || '';
   document.getElementById('lightbox').classList.add('visible');
