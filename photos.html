@@ -225,8 +225,8 @@ const BLUE_ROSE_SVG = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/sv
 </svg>`;
 
 const ALBUMS = {
-  lune: { emojis: ['🌙','🌕','🌘','🌑'] },
-  nature: { emojis: ['🍃','🌞', BLUE_ROSE_SVG, '🐸'] }
+  lune: { emojis: ['🌕','🌗'] },
+  nature: { emojis: ['🌞', BLUE_ROSE_SVG, '🐸'] }
 };
 
 /* Positions de la pile (repliée) et de l'éventail (floraison) */
@@ -274,13 +274,13 @@ const GALLERY_TITLES = { lune: 'Album Lune', nature: 'Album Nature' };
 
 const CATEGORY_META = {
   lune: {
-    subLabels: ['Nouvelle lune', 'Pleine lune', 'Lune décroissante', 'Autre phase'],
-    tabEmojis: ['🌙', '🌕', '🌘', '🌑'],
+    subLabels: ['Pleine lune', 'Autre phase'],
+    tabEmojis: ['🌕', '🌗'],
     showDate: true
   },
   nature: {
-    subLabels: ['Feuillage', 'Coucher de soleil', 'Fleurs', 'Faune'],
-    tabEmojis: ['🍃', '🌞', '🌹', '🐸'],
+    subLabels: ['Coucher de soleil', 'Fleurs', 'Animaux'],
+    tabEmojis: ['🌞', '🌹', '🐸'],
     showDate: true
   }
 };
@@ -289,10 +289,11 @@ let currentCategory = null;
 let currentFilter = 'all';
 
 function buildPlaceholderData(category){
-  // 12 emplacements en attente de vraies photos, répartis sur les 4 sous-catégories
+  // 12 emplacements en attente de vraies photos, répartis sur les sous-catégories réelles
+  const n = CATEGORY_META[category].subLabels.length;
   const items = [];
   for (let i = 0; i < 12; i++){
-    items.push({ sub: i % 4, date: null });
+    items.push({ sub: i % n, date: null });
   }
   return items;
 }
