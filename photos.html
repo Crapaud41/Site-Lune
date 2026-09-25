@@ -126,17 +126,6 @@
   }
   .gallery-card:hover{transform:scale(1.035); border-color:var(--gold);}
   .gallery-card:hover img{transform:scale(1.08);}
-  .card-overlay{
-    position:absolute; inset:0; z-index:2;
-    display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
-    padding:0.9rem;
-    background:linear-gradient(180deg, transparent 40%, rgba(6,8,20,0.88) 100%);
-    opacity:0; transition:opacity 0.3s ease;
-    text-align:center;
-  }
-  .gallery-card:hover .card-overlay{opacity:1;}
-  .card-overlay .ov-sub{color:var(--gold-soft); font-size:0.72rem; font-style:italic; font-family:'Cormorant Garamond',serif;}
-  .card-overlay .ov-date{color:var(--ink-dim); font-size:0.62rem; margin-top:0.2rem;}
   .gallery-loading, .gallery-empty{
     grid-column:1/-1; text-align:center; color:var(--ink-dim);
     font-style:italic; font-family:'Cormorant Garamond',serif; font-size:1.1rem;
@@ -398,13 +387,7 @@ function renderGrid(){
     const card = document.createElement('div');
     card.className = 'gallery-card';
     const subLabel = meta.subLabels[item.sub];
-    const dateHtml = (meta.showDate && item.dateLabel) ? `<div class="ov-date">${item.dateLabel}</div>` : '';
-    card.innerHTML = `
-      <img src="${item.url}" alt="${subLabel}" loading="lazy">
-      <div class="card-overlay">
-        <div class="ov-sub">${meta.tabEmojis[item.sub]} ${subLabel}</div>
-        ${dateHtml}
-      </div>`;
+    card.innerHTML = `<img src="${item.url}" alt="${subLabel}" loading="lazy">`;
     card.addEventListener('click', () => openLightbox(item.url, subLabel, meta.showDate ? item.dateLabel : null));
     grid.appendChild(card);
   });
