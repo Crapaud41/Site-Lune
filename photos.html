@@ -281,12 +281,14 @@ const CATEGORY_META = {
     subLabels: ['Pleine lune', 'Autre phase'],
     tabEmojis: ['🌕', '🌗'],
     folderSlugs: ['pleine-lune', 'autre-phase'],
+    defaultFilter: 1, // Autre phase
     showDate: true
   },
   nature: {
     subLabels: ['Coucher de soleil', 'Fleurs', 'Animaux'],
     tabEmojis: ['🌞', '🌹', '🐸'],
     folderSlugs: ['coucher-de-soleil', 'fleurs', 'animaux'],
+    defaultFilter: 1, // Fleurs
     showDate: true
   }
 };
@@ -353,15 +355,16 @@ async function fetchCategoryPhotos(category){
 }
 
 let currentCategory = null;
-let currentFilter = 'all';
+let currentFilter = 0;
 let currentItems = [];
 
 function buildFilterTabs(category){
   const meta = CATEGORY_META[category];
   const tabsEl = document.getElementById('filterTabs');
-  let html = `<div class="filter-tab active" data-filter="all"><span class="tab-emoji">✦</span> Tout</div>`;
+  let html = '';
   meta.subLabels.forEach((label, i) => {
-    html += `<div class="filter-tab" data-filter="${i}"><span class="tab-emoji">${meta.tabEmojis[i]}</span> ${label}</div>`;
+    const activeClass = (i === meta.defaultFilter) ? ' active' : '';
+    html += `<div class="filter-tab${activeClass}" data-filter="${i}"><span class="tab-emoji">${meta.tabEmojis[i]}</span> ${label}</div>`;
   });
   tabsEl.innerHTML = html;
   tabsEl.querySelectorAll('.filter-tab').forEach(tab => {
@@ -377,7 +380,7 @@ function buildFilterTabs(category){
 function renderGrid(){
   const meta = CATEGORY_META[currentCategory];
   const grid = document.getElementById('galleryGrid');
-  const items = currentItems.filter(it => currentFilter === 'all' || it.sub === Number(currentFilter));
+  const items = currentItems.filter(it => it.sub === Number(currentFilter));
   grid.innerHTML = '';
   if (items.length === 0){
     grid.innerHTML = `<div class="gallery-empty">Aucune photo pour l'instant dans cette catégorie.</div>`;
@@ -395,7 +398,7 @@ function renderGrid(){
 
 async function openGallery(category){
   currentCategory = category;
-  currentFilter = 'all';
+  currentFilter = CATEGORY_META[category].defaultFilter;
   document.getElementById('galleryTitle').textContent = GALLERY_TITLES[category];
   buildFilterTabs(category);
   document.getElementById('albumView').classList.add('hidden');
