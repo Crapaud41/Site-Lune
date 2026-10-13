@@ -302,7 +302,10 @@ const FR_MONTHS = {
 };
 
 function parseDateFromFilename(name){
-  const base = name.replace(/\.[^.]+$/, '').trim();
+  const base = name
+    .replace(/\.[^.]+$/, '')   // enlève l'extension (.jpg)
+    .replace(/\s*\(.*$/, '')   // enlève un suffixe " (1)" ou " (" ajouté par Windows
+    .trim();
   let m = base.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return new Date(+m[1], +m[2]-1, +m[3]);
   m = base.match(/^(\d{1,2})\s+([A-Za-zÀ-ÿ]+)\s+(\d{4})$/);
