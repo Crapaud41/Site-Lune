@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#060814">
+<title>Lune</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<noscript><meta http-equiv="refresh" content="0;url=index.html"></noscript>
+<style>
+  :root{--bg:#060814;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;background:var(--bg);overflow:hidden;}
+
+  #stage{position:fixed;inset:0;opacity:0;transition:opacity .45s ease;}
+  #stage.on{opacity:1;}
+  #stars{position:absolute;inset:0;}
+  #stars i{position:absolute;border-radius:50%;background:#fff;}
+
+  .orb{position:absolute;border-radius:50%;}
+  .orb svg{width:100%;height:100%;display:block;}
+  #earth{width:82vmin;height:82vmin;left:-18vmin;bottom:-26vmin;box-shadow:0 0 5vmin .6vmin rgba(90,150,255,.28);}
+  #moon{width:20vmin;height:20vmin;right:14vw;top:12vh;box-shadow:0 0 3vmin rgba(240,217,168,.22);transition:box-shadow .7s ease,filter .7s ease;}
+  #moon.arrive{box-shadow:0 0 7vmin 1.2vmin rgba(240,217,168,.5);filter:brightness(1.14);}
+  #moon::after{content:'';position:absolute;inset:0;border-radius:50%;border:1px solid rgba(240,217,168,.7);opacity:0;}
+  #moon.arrive::after{animation:ring .9s ease-out forwards;}
+  @keyframes ring{from{transform:scale(1);opacity:.7}to{transform:scale(2.1);opacity:0}}
+
+  #fx{position:absolute;inset:0;width:100%;height:100%;}
+  #flame{transform-box:fill-box;transform-origin:50% 0;animation:flick .12s ease-in-out infinite alternate;}
+  @keyframes flick{from{transform:scaleY(.82) scaleX(.92)}to{transform:scaleY(1.12) scaleX(1.05)}}
+
+  #curtain{position:fixed;inset:0;background:var(--bg);opacity:0;pointer-events:none;transition:opacity .55s ease;}
+  #curtain.on{opacity:1;}
+</style>
+</head>
+<body>
+
+<div id="stage" aria-hidden="true">
+  <div id="stars"></div>
+
+  <div id="earth" class="orb">
+    <svg viewBox="0 0 200 200">
+      <defs>
+        <clipPath id="ec"><circle cx="100" cy="100" r="99"/></clipPath>
+        <radialGradient id="ocean" cx=".64" cy=".36" r=".85">
+          <stop offset="0" stop-color="#3a78cc"/><stop offset=".45" stop-color="#1a4a9a"/>
+          <stop offset=".8" stop-color="#0a2058"/><stop offset="1" stop-color="#040c2a"/>
+        </radialGradient>
+        <radialGradient id="shade" cx=".64" cy=".36" r=".78">
+          <stop offset=".3" stop-color="#030614" stop-opacity="0"/><stop offset="1" stop-color="#030614" stop-opacity=".9"/>
+        </radialGradient>
+        <filter id="land" x="0" y="0" width="200" height="200" filterUnits="userSpaceOnUse">
+          <feTurbulence type="fractalNoise" baseFrequency=".016" numOctaves="4" seed="7"/>
+          <feColorMatrix values="0 0 0 0 .2  0 0 0 0 .5  0 0 0 0 .34  12 0 0 0 -5.9"/>
+        </filter>
+        <filter id="cloud" x="0" y="0" width="200" height="200" filterUnits="userSpaceOnUse">
+          <feTurbulence type="fractalNoise" baseFrequency=".03 .055" numOctaves="4" seed="3"/>
+          <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  8 0 0 0 -4.2"/>
+        </filter>
+      </defs>
+      <g clip-path="url(#ec)">
+        <circle cx="100" cy="100" r="100" fill="url(#ocean)"/>
+        <rect width="200" height="200" filter="url(#land)" opacity=".9"/>
+        <rect width="200" height="200" filter="url(#cloud)" opacity=".3"/>
+        <circle cx="100" cy="100" r="100" fill="url(#shade)"/>
+      </g>
+      <circle cx="100" cy="100" r="99" fill="none" stroke="rgba(140,190,255,.5)" stroke-width="1.6"/>
+    </svg>
+  </div>
+
+  <div id="moon" class="orb">
+    <svg viewBox="0 0 200 200">
+      <defs>
+        <clipPath id="mc"><circle cx="100" cy="100" r="99"/></clipPath>
+        <radialGradient id="mg" cx=".62" cy=".38" r=".85">
+          <stop offset="0" stop-color="#f8ecc8"/><stop offset=".5" stop-color="#e2c993"/>
+          <stop offset=".85" stop-color="#9c8a68"/><stop offset="1" stop-color="#4a4258"/>
+        </radialGradient>
+        <filter id="cr" x="0" y="0" width="200" height="200" filterUnits="userSpaceOnUse">
+          <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="4" seed="7"/>
+          <feDiffuseLighting lighting-color="#fff" surfaceScale="3" diffuseConstant="1.1"><feDistantLight azimuth="235" elevation="55"/></feDiffuseLighting>
+        </filter>
+      </defs>
+      <g clip-path="url(#mc)">
+        <circle cx="100" cy="100" r="100" fill="url(#mg)"/>
+        <ellipse cx="78" cy="82" rx="26" ry="20" fill="#6d6458" opacity=".22"/>
+        <ellipse cx="122" cy="116" rx="20" ry="26" fill="#6d6458" opacity=".18"/>
+        <ellipse cx="96" cy="142" rx="15" ry="9" fill="#6d6458" opacity=".16"/>
+        <rect width="200" height="200" filter="url(#cr)" style="mix-blend-mode:overlay" opacity=".45"/>
+      </g>
+    </svg>
+  </div>
+
+  <svg id="fx">
+    <defs>
+      <linearGradient id="rb" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#f6f8ff"/><stop offset="1" stop-color="#bfc5de"/></linearGradient>
+    </defs>
+    <g id="trails"></g>
+    <g id="rocket">
+      <g id="flame" opacity="0">
+        <path d="M-5 25 Q0 64 5 25Z" fill="#ffb347" opacity=".85"/>
+        <path d="M-3 25 Q0 48 3 25Z" fill="#fff6d6"/>
+      </g>
+      <path d="M-9 6 L-19 27 L-9 21Z" fill="#c9974a"/>
+      <path d="M9 6 L19 27 L9 21Z" fill="#c9974a"/>
+      <path d="M0 -32 C10 -21 10.5 -4 9 22 L-9 22 C-10.5 -4 -10 -21 0 -32Z" fill="url(#rb)"/>
+      <path d="M0 -32 C4.5 -27.5 7.2 -22.5 8.2 -16.5 L-8.2 -16.5 C-7.2 -22.5 -4.5 -27.5 0 -32Z" fill="#e8c17a"/>
+      <circle cx="0" cy="-4" r="4.2" fill="#5c7cdc" stroke="#f0d9a8" stroke-width="1.3"/>
+      <circle cx="-1.3" cy="-5.3" r="1.2" fill="#b9c7ff"/>
+      <path d="M-5 22 H5 L4 26.5 H-4Z" fill="#6b6f88"/>
+    </g>
+  </svg>
+</div>
+
+<div id="curtain"></div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const earth=$('earth'), moon=$('moon'), fx=$('fx'), rocket=$('rocket'),
+        flame=$('flame'), trails=$('trails'), stage=$('stage'), curtain=$('curtain');
+  const NS='http://www.w3.org/2000/svg';
+
+  /* Étoiles discrètes (position fixe, pas de hasard d'une visite à l'autre) */
+  let seed=42; const rnd=()=>(seed=(seed*1664525+1013904223)%4294967296)/4294967296;
+  for(let i=0;i<90;i++){
+    const s=document.createElement('i'), z=.8+rnd()*1.6;
+    s.style.cssText=`left:${rnd()*100}%;top:${rnd()*100}%;width:${z}px;height:${z}px;opacity:${.2+rnd()*.55}`;
+    $('stars').appendChild(s);
+  }
+
+  /* Traînée : 6 couches superposées → s'estompe vers l'arrière */
+  const layers=[];
+  for(let k=0;k<6;k++){
+    const p=document.createElementNS(NS,'path');
+    p.setAttribute('fill','none'); p.setAttribute('stroke','#f0d9a8');
+    p.setAttribute('stroke-width','2.2'); p.setAttribute('stroke-linecap','round'); p.setAttribute('opacity','.13');
+    trails.appendChild(p); layers.push(p);
+  }
+  const route=document.createElementNS(NS,'path');
+  let L=1, sc=1;
+
+  /* Trajectoire calculée d'après la position réelle de la Terre et de la Lune (marche sur tout écran) */
+  function layout(){
+    const W=innerWidth, H=innerHeight;
+    fx.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    const e=earth.getBoundingClientRect(), m=moon.getBoundingClientRect();
+    const ec={x:e.left+e.width/2,y:e.top+e.height/2}, eR=e.width/2;
+    const mc={x:m.left+m.width/2,y:m.top+m.height/2}, mR=m.width/2;
+    const toMoon=Math.atan2(mc.y-ec.y,mc.x-ec.x)*180/Math.PI;
+    const a=Math.max(-100,Math.min(-50,toMoon-35))*Math.PI/180;      // point de départ : plus "vers le haut" que la Lune
+    const n={x:Math.cos(a),y:Math.sin(a)};
+    const p0={x:ec.x+n.x*eR*.985, y:ec.y+n.y*eR*.985};
+    const dist=Math.hypot(mc.x-p0.x,mc.y-p0.y);
+    const c={x:p0.x+n.x*dist*.5, y:Math.max(H*.08,p0.y+n.y*dist*.5)};  // décollage à la verticale du sol
+    const u=Math.hypot(c.x-mc.x,c.y-mc.y);
+    const p2={x:mc.x+(c.x-mc.x)/u*mR*.92, y:mc.y+(c.y-mc.y)/u*mR*.92};
+    const d=`M${p0.x} ${p0.y}Q${c.x} ${c.y} ${p2.x} ${p2.y}`;
+    route.setAttribute('d',d); layers.forEach(l=>l.setAttribute('d',d));
+    L=route.getTotalLength();
+    sc=Math.max(44,Math.min(W,H)*.085)/58;
+  }
+  layout(); addEventListener('resize',layout);
+
+  /* Chronologie (ms) : allumage → vol → arrivée → fondu */
+  const T_FLIGHT0=450, T_FLIGHT=2900, T_ARRIVE=T_FLIGHT0+T_FLIGHT, T_OUT=4000;
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  let done=false;
+  const go=()=>{ if(done) return; done=true; location.replace('index.html'); };
+
+  requestAnimationFrame(()=>stage.classList.add('on'));
+  const t0=performance.now(); let arrived=false, fading=false;
+
+  function frame(now){
+    const t=now-t0;
+    const u=Math.max(0,Math.min(1,(t-T_FLIGHT0)/T_FLIGHT));
+    const h=ease(u)*L;
+    const pt=route.getPointAtLength(h);
+    const ahead=route.getPointAtLength(Math.min(L,h+1)), back=route.getPointAtLength(Math.max(0,h-1));
+    const tx=ahead.x-back.x, ty=ahead.y-back.y, tl=Math.hypot(tx,ty)||1;
+    const ang=Math.atan2(ty,tx)*180/Math.PI+90;
+    const shrink=1-.42*u;                                  // la fusée rapetisse en s'éloignant
+    const fade=t>T_ARRIVE?Math.max(0,1-(t-T_ARRIVE)/450):1;
+    const lift=29*sc*shrink*Math.max(0,1-u*6);             // au départ, la base repose sur le sol
+    const shake=t<T_FLIGHT0?(Math.random()-.5)*1.2:0;      // petite vibration à l'allumage
+    const x=pt.x+tx/tl*lift+shake, y=pt.y+ty/tl*lift;
+    rocket.setAttribute('transform',`translate(${x} ${y}) rotate(${ang}) scale(${sc*shrink*(.8+.2*fade)})`);
+    rocket.style.opacity=fade;
+    flame.style.opacity=Math.min(1,t/300)*fade;
+
+    layers.forEach((l,k)=>{
+      const win=L*.4*(k+1)/6, len=Math.min(win,h);
+      l.style.strokeDasharray=`${len} ${L*2}`; l.style.strokeDashoffset=-Math.max(0,h-win);
+    });
+    trails.style.opacity=fade;
+
+    if(!arrived && t>=T_ARRIVE){ arrived=true; moon.classList.add('arrive'); }
+    if(!fading && t>=T_OUT){ fading=true; curtain.classList.add('on'); setTimeout(go,600); }
+    if(!done) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  setTimeout(go,5400);   // filet de sécurité : on arrive toujours sur l'accueil
+})();
+</script>
+</body>
+</html>
