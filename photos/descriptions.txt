@@ -72,14 +72,14 @@ fleurs/13 Mai 2021.jpg |
 fleurs/10 Juillet 2020.jpg | 
 
 # ---------- nature/animaux ----------
-animaux/7 Juillet 2025.jpg | 
-animaux/8 Juillet 2024.jpg | 
-animaux/02 Mai 2024.jpg | 
-animaux/2 Mai 2024.jpg | 
-animaux/01 Janvier 2024.jpg | 
-animaux/21 Mai 2023.jpg | 
-animaux/7 Février 2023.jpg | 
-animaux/27 Novembre 2022.jpg | 
-animaux/30 Octobre 2022.jpg | 
-animaux/20 Septembre 2022.jpg | 
+animaux/7 Juillet 2025.jpg | Lucane cerf-volant
+animaux/8 Juillet 2024.jpg | Grand Sphinx de la vigne
+animaux/02 Mai 2024.jpg | Misty
+animaux/2 Mai 2024.jpg | Chatouille
+animaux/01 Janvier 2024.jpg | Chatouille
+animaux/21 Mai 2023.jpg | Le petit inconnu
+animaux/7 Février 2023.jpg | Bernard
+animaux/27 Novembre 2022.jpg | Fantôme
+animaux/30 Octobre 2022.jpg | Chatouille
+animaux/20 Septembre 2022.jpg | Le petit inconnu
 animaux/31 Mai 2021.jpg | Le petit inconnu
