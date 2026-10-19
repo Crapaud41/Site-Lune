@@ -157,6 +157,24 @@
     cursor:pointer; padding:0.4rem;
   }
   .lightbox-close:hover{color:var(--gold-soft);}
+  #lbImg{transition:opacity .2s ease;}
+  #lbImg.loading{opacity:.35;}
+  .lb-arrow{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:2;
+    width:3.2rem; height:3.2rem; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(6,8,20,.6); border:1px solid var(--line); color:var(--ink-dim);
+    cursor:pointer; transition:color .2s, border-color .2s, background .2s;
+  }
+  .lb-arrow:hover{color:var(--gold-soft); border-color:var(--gold); background:rgba(232,193,122,.1);}
+  .lb-arrow[hidden]{display:none;}
+  .lb-arrow svg{width:1.3rem; height:1.3rem;}
+  #lbPrev{left:max(1rem,3vw);}
+  #lbNext{right:max(1rem,3vw);}
+  @media (max-width:720px){
+    .lb-arrow{width:2.6rem; height:2.6rem;}
+    #lbPrev{left:.5rem;} #lbNext{right:.5rem;}
+  }
 
   @media (max-width:720px){
     .gallery-grid{grid-template-columns:repeat(2, 1fr); gap:1rem;}
@@ -216,6 +234,8 @@
       <div class="lb-date" id="lbDate"></div>
     </div>
   </div>
+  <button class="lb-arrow" id="lbPrev" aria-label="Photo précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="lb-arrow" id="lbNext" aria-label="Photo suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
 </div>
 
 <script>
@@ -384,17 +404,20 @@ function renderGrid(){
   const meta = CATEGORY_META[currentCategory];
   const grid = document.getElementById('galleryGrid');
   const items = currentItems.filter(it => it.sub === Number(currentFilter));
+  visibleItems = items;   // c'est dans cette liste que les flèches de la lightbox naviguent
   grid.innerHTML = '';
   if (items.length === 0){
     grid.innerHTML = `<div class="gallery-empty">Aucune photo pour l'instant dans cette catégorie.</div>`;
     return;
   }
-  items.forEach(item => {
+  items.forEach((item, idx) => {
     const card = document.createElement('div');
     card.className = 'gallery-card';
-    const subLabel = meta.subLabels[item.sub];
-    card.innerHTML = `<img src="${item.url}" alt="${subLabel}" loading="lazy">`;
-    card.addEventListener('click', () => openLightbox(item.url, subLabel, meta.showDate ? item.dateLabel : null));
+    const img = document.createElement('img');
+    img.src = item.url; img.loading = 'lazy';
+    img.alt = descriptionFor(item) || meta.subLabels[item.sub];
+    card.appendChild(img);
+    card.addEventListener('click', () => openLightbox(idx));
     grid.appendChild(card);
   });
 }
@@ -408,6 +431,7 @@ async function openGallery(category){
   document.getElementById('galleryView').classList.add('visible');
   document.getElementById('galleryGrid').innerHTML = `<div class="gallery-loading">Chargement des photos…</div>`;
   currentItems = await fetchCategoryPhotos(category);
+  await loadDescriptions();
   renderGrid();
 }
 
@@ -425,19 +449,82 @@ function closeGallery(){
 
 document.getElementById('backBtn').addEventListener('click', closeGallery);
 
+/* ---------- Descriptions (photos/descriptions.txt) ---------- */
+// Une ligne par photo :  dossier/nom-du-fichier.jpg | Ta description
+let descMap = null;
+async function loadDescriptions(){
+  if (descMap) return descMap;
+  descMap = {};
+  try {
+    const res = await fetch('photos/descriptions.txt', {cache:'no-cache'});
+    if (res.ok){
+      (await res.text()).split(/\r?\n/).forEach(line => {
+        line = line.trim();
+        if (!line || line.startsWith('#')) return;
+        const i = line.indexOf('|');
+        if (i < 1) return;
+        const key = line.slice(0, i).trim().normalize('NFC').toLowerCase();
+        const val = line.slice(i + 1).trim();
+        if (val) descMap[key] = val;
+      });
+    }
+  } catch(e){}
+  return descMap;
+}
+function descriptionFor(item){
+  const slug = CATEGORY_META[currentCategory].folderSlugs[item.sub];
+  return (descMap || {})[`${slug}/${item.name}`.normalize('NFC').toLowerCase()] || '';
+}
+
 /* ---------- Lightbox ---------- */
-function openLightbox(url, subLabel, date){
-  document.getElementById('lbImg').src = url;
-  document.getElementById('lbSub').textContent = subLabel;
-  document.getElementById('lbDate').textContent = date || '';
+let visibleItems = [];
+let lbIndex = -1;
+
+function openLightbox(i){
+  lbIndex = i;
+  showLightbox();
   document.getElementById('lightbox').classList.add('visible');
+}
+function showLightbox(){
+  const item = visibleItems[lbIndex];
+  if (!item) return;
+  const meta = CATEGORY_META[currentCategory];
+  const desc = descriptionFor(item);
+  const date = (meta.showDate && item.dateLabel) ? item.dateLabel : '';
+  const img = document.getElementById('lbImg');
+  img.classList.add('loading');
+  img.onload = img.onerror = () => img.classList.remove('loading');
+  img.src = item.url;
+  img.alt = desc || meta.subLabels[item.sub];
+  const sub = document.getElementById('lbSub');
+  sub.textContent = desc;
+  sub.style.display = desc ? '' : 'none';
+  document.getElementById('lbDate').textContent = date;
+  document.querySelector('.lb-caption').style.display = (desc || date) ? '' : 'none';
+  document.getElementById('lbPrev').hidden = lbIndex <= 0;
+  document.getElementById('lbNext').hidden = lbIndex >= visibleItems.length - 1;
+  [lbIndex - 1, lbIndex + 1].forEach(j => { if (visibleItems[j]) new Image().src = visibleItems[j].url; });  // précharge les voisines
+}
+function stepLightbox(d){
+  const j = lbIndex + d;
+  if (j < 0 || j >= visibleItems.length) return;
+  lbIndex = j;
+  showLightbox();
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('visible');
 }
 document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrev').addEventListener('click', () => stepLightbox(-1));
+document.getElementById('lbNext').addEventListener('click', () => stepLightbox(1));
 document.getElementById('lightbox').addEventListener('click', (e) => {
   if (e.target.id === 'lightbox') closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightbox').classList.contains('visible')) return;
+  if (e.key === 'ArrowRight') stepLightbox(1);
+  else if (e.key === 'ArrowLeft') stepLightbox(-1);
+  else if (e.key === 'Escape') closeLightbox();
 });
 </script>
 
