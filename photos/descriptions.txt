@@ -1,0 +1,85 @@
+# Descriptions des photos : une ligne par photo, au format :
+#     dossier/nom-du-fichier.jpg | Ta description
+# Le nom doit être écrit exactement comme dans GitHub (copie-colle-le).
+# Une ligne sans description après le | est ignorée. Les lignes qui commencent par # sont des commentaires.
+# Pour ajouter une photo plus tard, ajoute simplement une nouvelle ligne.
+
+# ---------- lune/pleine-lune ----------
+pleine-lune/04 Juin 2023.jpg | 
+
+# ---------- lune/autre-phase ----------
+autre-phase/12 Juillet 2026.jpg | 
+
+# ---------- nature/soleil ----------
+soleil/25 Juillet 2026 (.jpg | 
+soleil/25 Juillet 2026 (1.jpg | 
+soleil/25 Juillet 2026.jpg | 
+soleil/18 Juillet 2026 (.jpg | 
+soleil/18 Juillet 2026.jpg | 
+soleil/4 Juillet 2026.jpg | 
+soleil/09 Juin 2026.jpg | 
+soleil/27 Mai 2026.jpg | 
+soleil/17 Mai 2026.jpg | 
+soleil/3 Mai 2026.jpg | 
+soleil/15 Mars 2026.jpg | 
+soleil/8 Février 2026.jpg | 
+soleil/25 Janvier 2026.jpg | 
+soleil/16 Octobre 2025.jpg | 
+soleil/6 Septembre 2025.jpg | 
+soleil/25 Août 2025.jpg | 
+soleil/2 Août 2025 (1).jpg | 
+soleil/2 Août 2025.jpg | 
+soleil/17 Mai 2025.jpg | 
+soleil/15 Mai 2025.jpg | 
+soleil/14 Mai 2025.jpg | 
+soleil/18 Septembre 2024.jpg | 
+soleil/25 Août 2024.jpg | 
+soleil/8 Juin 2024.jpg | 
+soleil/14 Avril 2024 (1).jpg | 
+soleil/08 Février 2024.jpg | 
+soleil/24 Août 2023.jpg | 
+soleil/15 Août 2023.jpg | 
+soleil/12 Août 2023.jpg | 
+soleil/6 Août 2023.jpg | 
+soleil/24 Juin 2023.jpg | 
+soleil/18 Juin 2023.jpg | 
+soleil/17 Juin 2023 (1).jpg | 
+soleil/19 Mai 2023.jpg | 
+soleil/7 Mai 2023.jpg | 
+soleil/14 Août 2022.jpg | 
+soleil/15 Septembre 2018.jpg | 
+
+# ---------- nature/fleurs ----------
+fleurs/27 Avril 2026.jpg | 
+fleurs/19 Juillet 2024.jpg | 
+fleurs/08 Juin 2024.jpg | 
+fleurs/03 Juin 2024.jpg | 
+fleurs/02 Juin 2024.jpg | 
+fleurs/31 Mai 2024.jpg | 
+fleurs/22 Mai 2024.jpg | 
+fleurs/05 Mai 2024.jpg | 
+fleurs/30 Novembre 2023.jpg | 
+fleurs/24 Septembre 2023.jpg | 
+fleurs/23 Août 2023.jpg | 
+fleurs/2 Août 2023.jpg | 
+fleurs/13 Mai 2023.jpg | 
+fleurs/11 Mai 2023.jpg | 
+fleurs/10 Mai 2023.jpg | 
+fleurs/8 Mai 2022.jpg | 
+fleurs/27 Mai 2021.jpg | 
+fleurs/20 Mai 2021.jpg | 
+fleurs/13 Mai 2021.jpg | 
+fleurs/10 Juillet 2020.jpg | 
+
+# ---------- nature/animaux ----------
+animaux/7 Juillet 2025.jpg | 
+animaux/8 Juillet 2024.jpg | 
+animaux/02 Mai 2024.jpg | 
+animaux/2 Mai 2024.jpg | 
+animaux/01 Janvier 2024.jpg | 
+animaux/21 Mai 2023.jpg | 
+animaux/7 Février 2023.jpg | 
+animaux/27 Novembre 2022.jpg | 
+animaux/30 Octobre 2022.jpg | 
+animaux/20 Septembre 2022.jpg | 
+animaux/31 Mai 2021.jpg | Le petit inconnu
