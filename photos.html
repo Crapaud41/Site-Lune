@@ -144,6 +144,7 @@
   .lightbox-close:hover{color:var(--gold-soft);}
   #lbImg{transition:opacity .2s ease;}
   #lbImg.loading{opacity:.35;}
+  @media(prefers-reduced-motion:reduce){#lbImg{transition:none;}#lbImg.loading{opacity:1;}}
   .lb-arrow{
     position:absolute; top:50%; transform:translateY(-50%); z-index:2;
     width:3.2rem; height:3.2rem; border-radius:50%;
@@ -369,6 +370,25 @@ let currentItems = [];
 let currentPage = 0;
 const PHOTOS_PER_PAGE = 22;
 const galleryPagination = document.getElementById('galleryPagination');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const galleryFade = {id:0,busy:false,animations:[]};
+const lightboxFade = {id:0,busy:false,animations:[]};
+
+function stopFade(state){
+  state.id++;
+  state.busy = false;
+  state.animations.forEach(animation => animation.cancel());
+  state.animations = [];
+}
+
+async function fadePhotos(elements, from, to, duration, state){
+  if (reducedMotion.matches) return;
+  const animations = [...elements].filter(el => typeof el.animate === 'function').map(el =>
+    el.animate([{opacity:from},{opacity:to}],{duration,easing:'ease-in-out',fill:'forwards'})
+  );
+  state.animations.push(...animations);
+  await Promise.allSettled(animations.map(animation => animation.finished));
+}
 
 function buildFilterTabs(category){
   const meta = CATEGORY_META[category];
@@ -390,7 +410,8 @@ function buildFilterTabs(category){
   });
 }
 
-function renderGrid(){
+function renderGrid(keepFade = false){
+  if (!keepFade) stopFade(galleryFade);
   const meta = CATEGORY_META[currentCategory];
   const grid = document.getElementById('galleryGrid');
   const items = currentItems.filter(it => it.sub === Number(currentFilter));
@@ -415,6 +436,11 @@ function renderGrid(){
     const img = document.createElement('img');
     img.src = item.url; img.loading = 'lazy';
     img.alt = descriptionFor(item) || meta.subLabels[item.sub];
+    img.addEventListener('load',()=>{
+      if (img.isConnected && !reducedMotion.matches && typeof img.animate === 'function'){
+        img.animate([{opacity:0},{opacity:1}],{duration:160,easing:'ease-out'});
+      }
+    },{once:true});
     card.appendChild(img);
     card.addEventListener('click', () => openLightbox(idx));
     grid.appendChild(card);
@@ -422,6 +448,7 @@ function renderGrid(){
 }
 
 async function openGallery(category){
+  stopFade(galleryFade);
   currentCategory = category;
   currentFilter = CATEGORY_META[category].defaultFilter;
   currentPage = 0;
@@ -436,6 +463,7 @@ async function openGallery(category){
 }
 
 function closeGallery(){
+  stopFade(galleryFade);
   document.getElementById('galleryView').classList.remove('visible');
   document.getElementById('albumView').classList.remove('hidden');
   ['albumLune','albumNature'].forEach(id => {
@@ -448,8 +476,34 @@ function closeGallery(){
 }
 
 document.getElementById('backBtn').addEventListener('click', closeGallery);
-document.getElementById('previousPage').addEventListener('click',()=>{if(currentPage>0){currentPage--;renderGrid();}});
-document.getElementById('nextPage').addEventListener('click',()=>{currentPage++;renderGrid();});
+async function changeGalleryPage(direction){
+  if (galleryFade.busy) return;
+  const count = currentItems.filter(it=>it.sub===Number(currentFilter)).length;
+  const pageCount = Math.max(1,Math.ceil(count/PHOTOS_PER_PAGE));
+  const next = currentPage + direction;
+  if (next < 0 || next >= pageCount) return;
+  const id = ++galleryFade.id;
+  galleryFade.busy = true;
+  const previous = document.getElementById('previousPage');
+  const following = document.getElementById('nextPage');
+  previous.disabled = following.disabled = true;
+  try {
+    await fadePhotos(document.querySelectorAll('#galleryGrid .gallery-card'),1,0,120,galleryFade);
+    if (id !== galleryFade.id) return;
+    currentPage = next;
+    renderGrid(true);
+    previous.disabled = following.disabled = true;
+    await fadePhotos(document.querySelectorAll('#galleryGrid .gallery-card'),0,1,160,galleryFade);
+  } finally {
+    if (id === galleryFade.id){
+      stopFade(galleryFade);
+      previous.disabled = currentPage === 0;
+      following.disabled = currentPage >= pageCount-1;
+    }
+  }
+}
+document.getElementById('previousPage').addEventListener('click',()=>changeGalleryPage(-1));
+document.getElementById('nextPage').addEventListener('click',()=>changeGalleryPage(1));
 
 /* ---------- Descriptions (photos/descriptions.txt) ---------- */
 // Une ligne par photo :  dossier/nom-du-fichier.jpg | Ta description
@@ -496,7 +550,7 @@ const photoZoom = (() => {
   let scale = 1, x = 0, y = 0, gesture = null;
   let lastTap = null, lastTouchInput = 0;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-  const ready = () => img.naturalWidth > 0 && !img.classList.contains('loading');
+  const ready = () => img.naturalWidth > 0 && !img.classList.contains('loading') && !lightboxFade.busy;
 
   function paint(){
     const width = viewport.clientWidth, height = viewport.clientHeight;
@@ -640,6 +694,9 @@ const photoZoom = (() => {
 })();
 
 function openLightbox(i){
+  if (galleryFade.busy) return;
+  stopFade(lightboxFade);
+  document.getElementById('imageViewport').setAttribute('aria-busy','false');
   lightboxReturnFocus = document.activeElement;
   lbIndex = i;
   showLightbox();
@@ -674,13 +731,37 @@ function showLightbox(){
   document.getElementById('lbNext').hidden = lbIndex >= visibleItems.length - 1;
   [lbIndex - 1, lbIndex + 1].forEach(j => { if (visibleItems[j]) new Image().src = visibleItems[j].url; });  // précharge les voisines
 }
-function stepLightbox(d){
+async function stepLightbox(d){
+  if (lightboxFade.busy) return;
   const j = lbIndex + d;
   if (j < 0 || j >= visibleItems.length) return;
-  lbIndex = j;
-  showLightbox();
+  const id = ++lightboxFade.id;
+  lightboxFade.busy = true;
+  const viewport = document.getElementById('imageViewport');
+  const img = document.getElementById('lbImg');
+  viewport.setAttribute('aria-busy','true');
+  try {
+    const prepared = new Image();
+    prepared.src = visibleItems[j].url;
+    if (typeof prepared.decode === 'function') await prepared.decode().catch(()=>{});
+    if (id !== lightboxFade.id) return;
+    await fadePhotos([img],1,0,120,lightboxFade);
+    if (id !== lightboxFade.id) return;
+    lbIndex = j;
+    showLightbox();
+    if (typeof img.decode === 'function') await img.decode().catch(()=>{});
+    if (id !== lightboxFade.id) return;
+    await fadePhotos([img],0,1,160,lightboxFade);
+  } finally {
+    if (id === lightboxFade.id){
+      stopFade(lightboxFade);
+      viewport.setAttribute('aria-busy','false');
+    }
+  }
 }
 function closeLightbox(){
+  stopFade(lightboxFade);
+  document.getElementById('imageViewport').setAttribute('aria-busy','false');
   document.getElementById('lightbox').classList.remove('visible');
   photoZoom.reset();
   if (lightboxReturnFocus?.isConnected) lightboxReturnFocus.focus({preventScroll:true});
