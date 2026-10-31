@@ -19,7 +19,7 @@
     background-size:cover; background-position:center; background-attachment:fixed;
     overflow-x:hidden;
   }
-  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:22px 5vw;background:linear-gradient(to bottom,rgba(6,8,20,0.75),transparent);backdrop-filter:blur(2px);} 
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:22px 5vw;background:linear-gradient(to bottom,rgba(6,8,20,0.75),transparent);backdrop-filter:blur(2px);}
   .brand{font-family:'Cormorant Garamond',serif;font-size:1.5rem;letter-spacing:0.06em;color:var(--gold-soft);font-weight:600;text-decoration:none;}
   .navlinks{list-style:none;display:flex;gap:2.6rem;}
   .navlinks a{color:var(--ink-dim);text-decoration:none;font-size:0.82rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;}
@@ -110,26 +110,34 @@
 
   /* --- Lightbox --- */
   #lightbox{
-    display:none; position:fixed; inset:0; z-index:50;
+    display:none; position:fixed; inset:0; z-index:200;
     background:rgba(3,4,10,0.92); backdrop-filter:blur(6px);
     align-items:center; justify-content:center; padding:5vw;
   }
   #lightbox.visible{display:flex;}
   .lightbox-content{
     background:#0d1024; border:1px solid var(--line);
-    max-width:min(720px, 90vw); max-height:85vh;
+    min-width:min(300px,90vw); max-width:min(720px,90vw); max-height:95vh;
     display:flex; flex-direction:column; align-items:center;
     position:relative; overflow:hidden;
   }
-  .lightbox-content img{
-    max-width:100%; max-height:70vh; object-fit:contain; display:block;
-  }
+  .lightbox-toolbar{display:flex;align-items:center;justify-content:space-between;gap:.75rem;width:100%;padding:.55rem .7rem;}
+  .zoom-controls{display:flex;align-items:center;gap:.35rem;}
+  .zoom-controls button{display:grid;place-items:center;width:2rem;height:2rem;border:1px solid var(--line);background:transparent;color:var(--gold-soft);font:inherit;font-size:1.1rem;cursor:pointer;}
+  .zoom-controls button:disabled{opacity:.35;cursor:default;}
+  .zoom-controls output{min-width:2.8rem;text-align:center;font-size:.75rem;color:var(--ink-dim);font-variant-numeric:tabular-nums;}
+  .zoom-controls button:focus-visible,.lightbox-close:focus-visible{outline:1px solid var(--gold);outline-offset:3px;}
+  .image-viewport{position:relative;flex:none;max-width:100%;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:zoom-in;}
+  .image-viewport:focus-visible{outline:1px solid var(--gold);outline-offset:-2px;}
+  .image-viewport.zoomed{cursor:grab;}
+  .image-viewport.dragging{cursor:grabbing;}
+  .lightbox-content .image-viewport img{width:100%;height:100%;object-fit:contain;display:block;transform-origin:center;pointer-events:none;-webkit-user-drag:none;}
   .lb-caption{ padding:1rem 1.4rem 1.2rem; text-align:center; }
   .lightbox-content .lb-sub{font-family:Georgia,'Times New Roman',serif; font-style:italic; font-size:1.25rem; color:var(--gold-soft);}
   .lightbox-content .lb-date{font-size:0.78rem; color:var(--ink-dim); margin-top:0.3rem;}
   .lightbox-close{
-    position:absolute; top:-2.6rem; right:0; background:none; border:none;
-    color:var(--ink-dim); font-size:0.85rem; letter-spacing:0.08em; text-transform:uppercase;
+    flex:none; background:none; border:none;
+    color:var(--ink-dim); font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase;
     cursor:pointer; padding:0.4rem;
   }
   .lightbox-close:hover{color:var(--gold-soft);}
@@ -149,6 +157,7 @@
   #lbNext{right:max(1rem,3vw);}
   @media (max-width:720px){
     .lb-arrow{width:2.6rem; height:2.6rem;}
+    .zoom-controls button{width:2.5rem;height:2.5rem;}
     #lbPrev{left:.5rem;} #lbNext{right:.5rem;}
   }
 
@@ -211,10 +220,20 @@
 
 </main>
 
-<div id="lightbox">
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Photographie agrandie">
   <div class="lightbox-content">
-    <button class="lightbox-close" id="lightboxClose">✕ Fermer</button>
-    <img id="lbImg" src="" alt="">
+    <div class="lightbox-toolbar">
+      <div class="zoom-controls" role="group" aria-label="Zoom de la photographie">
+        <button type="button" id="zoomOut" aria-label="Réduire le zoom" title="Réduire le zoom (−)">−</button>
+        <output id="zoomLevel" aria-label="Niveau de zoom">1×</output>
+        <button type="button" id="zoomIn" aria-label="Agrandir la photographie" title="Agrandir (+)">+</button>
+        <button type="button" id="zoomReset" aria-label="Revenir à la photo entière" title="Revenir à la photo entière (0)">↺</button>
+      </div>
+      <button type="button" class="lightbox-close" id="lightboxClose">✕ Fermer</button>
+    </div>
+    <div class="image-viewport" id="imageViewport" tabindex="0" aria-label="Photo : molette ou double-clic pour zoomer, pincement sur téléphone, puis glisser pour déplacer">
+      <img id="lbImg" src="" alt="" draggable="false">
+    </div>
     <div class="lb-caption">
       <div class="lb-sub" id="lbSub">—</div>
       <div class="lb-date" id="lbDate"></div>
@@ -345,7 +364,8 @@ async function fetchCategoryPhotos(category){
 let currentCategory = null;
 let currentFilter = 0;
 let currentItems = [];
-let currentPage = 0; const galleryPagination = document.getElementById('galleryPagination');
+let currentPage = 0;
+const galleryPagination = document.getElementById('galleryPagination');
 
 function buildFilterTabs(category){
   const meta = CATEGORY_META[category];
@@ -375,14 +395,15 @@ function renderGrid(){
   const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
   currentPage = Math.min(currentPage, pageCount - 1);
   visibleItems = items.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-  const pagination = galleryPagination; grid.replaceChildren(pagination);
+  const pagination = galleryPagination;
+  grid.replaceChildren(pagination);
   pagination.hidden = false;
   document.getElementById('pageIndicator').textContent = `${currentPage + 1} / ${pageCount}`;
   document.getElementById('previousPage').disabled = currentPage === 0;
   document.getElementById('nextPage').disabled = currentPage >= pageCount - 1;
-  /* Navigation conservée dans la grille. */
   if (items.length === 0){
-    grid.innerHTML = `<div class="gallery-empty">Aucune photo pour l'instant dans cette catégorie.</div>`; grid.appendChild(pagination);
+    grid.innerHTML = `<div class="gallery-empty">Aucune photo pour l'instant dans cette catégorie.</div>`;
+    grid.appendChild(pagination);
     return;
   }
   visibleItems.forEach((item, idx) => {
@@ -457,11 +478,162 @@ function descriptionFor(item){
 /* ---------- Lightbox ---------- */
 let visibleItems = [];
 let lbIndex = -1;
+let lightboxReturnFocus = null;
+
+/* Zoom local à la photo : la page et ses commandes gardent leur taille. */
+const photoZoom = (() => {
+  const viewport = document.getElementById('imageViewport');
+  const img = document.getElementById('lbImg');
+  const minus = document.getElementById('zoomOut');
+  const plus = document.getElementById('zoomIn');
+  const resetButton = document.getElementById('zoomReset');
+  const level = document.getElementById('zoomLevel');
+  const pointers = new Map();
+  const MAX_ZOOM = 5;
+  let scale = 1, x = 0, y = 0, gesture = null;
+  let lastTap = null, lastTouchInput = 0;
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+  const ready = () => img.naturalWidth > 0 && !img.classList.contains('loading');
+
+  function paint(){
+    const width = viewport.clientWidth, height = viewport.clientHeight;
+    x = clamp(x, -width * (scale - 1) / 2, width * (scale - 1) / 2);
+    y = clamp(y, -height * (scale - 1) / 2, height * (scale - 1) / 2);
+    img.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    viewport.classList.toggle('zoomed', scale > 1);
+    level.textContent = `${Number(scale.toFixed(1)).toLocaleString('fr-FR')}×`;
+    minus.disabled = resetButton.disabled = scale <= 1;
+    plus.disabled = scale >= MAX_ZOOM;
+  }
+
+  function reset(){
+    for (const id of pointers.keys()){
+      if (viewport.hasPointerCapture(id)) viewport.releasePointerCapture(id);
+    }
+    pointers.clear(); gesture = null; lastTap = null;
+    scale = 1; x = y = 0;
+    viewport.classList.remove('dragging');
+    paint();
+  }
+
+  function fit(){
+    if (!img.naturalWidth || !img.naturalHeight) return;
+    const maxWidth = Math.min(720, window.innerWidth * .9);
+    const maxHeight = Math.max(80, Math.min(window.innerHeight * .7, window.innerHeight - 180));
+    const ratio = Math.min(1, maxWidth / img.naturalWidth, maxHeight / img.naturalHeight);
+    viewport.style.width = `${img.naturalWidth * ratio}px`;
+    viewport.style.height = `${img.naturalHeight * ratio}px`;
+    reset();
+  }
+
+  function localPoint(clientX, clientY){
+    const rect = viewport.getBoundingClientRect();
+    return {x:clientX - rect.left - rect.width / 2, y:clientY - rect.top - rect.height / 2};
+  }
+
+  function zoomTo(next, clientX, clientY){
+    if (!ready()) return;
+    const point = clientX === undefined ? {x:0,y:0} : localPoint(clientX,clientY);
+    next = clamp(next, 1, MAX_ZOOM);
+    const ratio = next / scale;
+    x = point.x - (point.x - x) * ratio;
+    y = point.y - (point.y - y) * ratio;
+    scale = next;
+    paint();
+  }
+
+  function toggle(clientX, clientY){
+    zoomTo(scale > 1 ? 1 : 3, clientX, clientY);
+  }
+
+  function startGesture(){
+    const points = [...pointers.values()];
+    if (points.length === 2){
+      const [a,b] = points;
+      const middle = localPoint((a.x+b.x)/2, (a.y+b.y)/2);
+      gesture = {type:'pinch',distance:Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),scale,
+        anchorX:(middle.x-x)/scale,anchorY:(middle.y-y)/scale};
+      for (const point of points) point.moved = true;
+      lastTap = null;
+    } else if (points.length === 1){
+      gesture = {type:'pan',startX:points[0].x,startY:points[0].y,x,y};
+    } else gesture = null;
+    viewport.classList.toggle('dragging', points.length > 0 && scale > 1);
+  }
+
+  viewport.addEventListener('wheel', e => {
+    if (!ready()) return;
+    e.preventDefault();
+    const delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? viewport.clientHeight : 1);
+    zoomTo(scale * Math.exp(-delta * .002), e.clientX, e.clientY);
+  }, {passive:false});
+  viewport.addEventListener('dblclick', e => {
+    e.preventDefault();
+    if (Date.now() - lastTouchInput > 650) toggle(e.clientX,e.clientY);
+  });
+  viewport.addEventListener('pointerdown', e => {
+    if (!ready() || pointers.size >= 2 || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    e.preventDefault();
+    if (e.pointerType === 'touch') lastTouchInput = Date.now();
+    pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,downX:e.clientX,downY:e.clientY,time:Date.now(),moved:false});
+    viewport.setPointerCapture(e.pointerId);
+    viewport.focus({preventScroll:true});
+    startGesture();
+  });
+  viewport.addEventListener('pointermove', e => {
+    const point = pointers.get(e.pointerId);
+    if (!point) return;
+    point.x = e.clientX; point.y = e.clientY;
+    if (Math.hypot(point.x-point.downX,point.y-point.downY) > 6) point.moved = true;
+    if (gesture?.type === 'pinch' && pointers.size === 2){
+      const [a,b] = [...pointers.values()];
+      const middle = localPoint((a.x+b.x)/2,(a.y+b.y)/2);
+      scale = clamp(gesture.scale * Math.hypot(a.x-b.x,a.y-b.y) / gesture.distance,1,MAX_ZOOM);
+      x = middle.x - gesture.anchorX * scale;
+      y = middle.y - gesture.anchorY * scale;
+      paint();
+    } else if (gesture?.type === 'pan' && scale > 1){
+      x = gesture.x + point.x - gesture.startX;
+      y = gesture.y + point.y - gesture.startY;
+      paint();
+    }
+    viewport.classList.toggle('dragging', scale > 1);
+  });
+
+  function endPointer(e){
+    const point = pointers.get(e.pointerId);
+    if (!point) return;
+    if (e.pointerType === 'touch'){
+      lastTouchInput = Date.now();
+      if (e.type === 'pointerup' && !point.moved && pointers.size === 1 && Date.now()-point.time < 300){
+        if (lastTap && Date.now()-lastTap.time < 300 && Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y) < 30){
+          toggle(e.clientX,e.clientY); lastTap = null;
+        } else lastTap = {time:Date.now(),x:e.clientX,y:e.clientY};
+      } else lastTap = null;
+    }
+    pointers.delete(e.pointerId);
+    if (viewport.hasPointerCapture(e.pointerId)) viewport.releasePointerCapture(e.pointerId);
+    startGesture();
+  }
+  viewport.addEventListener('pointerup',endPointer);
+  viewport.addEventListener('pointercancel',endPointer);
+  viewport.addEventListener('lostpointercapture',endPointer);
+  minus.addEventListener('click',()=>zoomTo(scale/1.5));
+  plus.addEventListener('click',()=>zoomTo(scale*1.5));
+  resetButton.addEventListener('click',reset);
+  window.addEventListener('resize',()=>{
+    if (document.getElementById('lightbox').classList.contains('visible')) fit();
+  });
+  paint();
+  return {reset,fit,change:factor=>zoomTo(scale*factor)};
+})();
 
 function openLightbox(i){
+  lightboxReturnFocus = document.activeElement;
   lbIndex = i;
   showLightbox();
   document.getElementById('lightbox').classList.add('visible');
+  document.getElementById('imageViewport').focus({preventScroll:true});
 }
 function showLightbox(){
   const item = visibleItems[lbIndex];
@@ -470,9 +642,12 @@ function showLightbox(){
   const desc = descriptionFor(item);
   const date = (meta.showDate && item.dateLabel) ? item.dateLabel : '';
   const img = document.getElementById('lbImg');
+  photoZoom.reset();
   img.classList.add('loading');
-  img.onload = img.onerror = () => img.classList.remove('loading');
+  img.onload = () => {img.classList.remove('loading'); photoZoom.fit();};
+  img.onerror = () => {img.classList.remove('loading'); photoZoom.reset();};
   img.src = item.url;
+  if (img.complete && img.naturalWidth){img.classList.remove('loading'); photoZoom.fit();}
   img.alt = desc || meta.subLabels[item.sub];
   const sub = document.getElementById('lbSub');
   sub.textContent = desc || meta.subLabels[item.sub];
@@ -491,6 +666,8 @@ function stepLightbox(d){
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('visible');
+  photoZoom.reset();
+  if (lightboxReturnFocus?.isConnected) lightboxReturnFocus.focus({preventScroll:true});
 }
 document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
 document.getElementById('lbPrev').addEventListener('click', () => stepLightbox(-1));
@@ -500,6 +677,19 @@ document.getElementById('lightbox').addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (!document.getElementById('lightbox').classList.contains('visible')) return;
+  if (!e.ctrlKey && !e.metaKey && ['+','=','-','_','0'].includes(e.key)){
+    e.preventDefault();
+    if (e.key === '0') photoZoom.reset();
+    else photoZoom.change(e.key === '-' || e.key === '_' ? 1/1.5 : 1.5);
+    return;
+  }
+  if (e.key === 'Tab'){
+    const controls = [...document.getElementById('lightbox').querySelectorAll('button:not([disabled]),[tabindex="0"]')].filter(el=>el.getClientRects().length);
+    const first = controls[0], last = controls[controls.length-1];
+    if (e.shiftKey && document.activeElement === first){e.preventDefault();last.focus();}
+    else if (!e.shiftKey && document.activeElement === last){e.preventDefault();first.focus();}
+    return;
+  }
   if (e.key === 'ArrowRight') stepLightbox(1);
   else if (e.key === 'ArrowLeft') stepLightbox(-1);
   else if (e.key === 'Escape') closeLightbox();
