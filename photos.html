@@ -31,7 +31,7 @@
   /* ---------- Sélection des albums ---------- */
   #albumView{min-height:calc(100vh - 73px);display:grid;grid-template-rows:auto 1fr;align-items:center;justify-items:center;gap:clamp(1rem,3vh,2rem);padding:1.4rem 5vw 2rem;transition:opacity .5s ease,visibility .5s;}
   #albumView.hidden{opacity:0;visibility:hidden;position:absolute;inset:0;pointer-events:none;}
-  .photos-intro{text-align:center;}
+  .photos-intro{text-align:center;transform:translateY(clamp(24px,8vh,100px));}
   .photos-intro .eyebrow{margin-bottom:.55rem;color:var(--gold);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;}
   .photos-intro h1{color:var(--ink);font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,3.4vw,3rem);font-weight:500;line-height:1.05;}
   .photos-intro .intro-copy{margin-top:.55rem;color:var(--ink-dim);font-size:.82rem;letter-spacing:.03em;}
