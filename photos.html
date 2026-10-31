@@ -231,7 +231,7 @@
       </div>
       <button type="button" class="lightbox-close" id="lightboxClose">✕ Fermer</button>
     </div>
-    <div class="image-viewport" id="imageViewport" tabindex="0" aria-label="Photo : molette ou double-clic pour zoomer, pincement sur téléphone, puis glisser pour déplacer">
+    <div class="image-viewport" id="imageViewport" tabindex="0" aria-label="Photo : clic gauche pour zoomer, clic droit pour dézoomer, molette ou pincement sur téléphone, puis glisser pour déplacer">
       <img id="lbImg" src="" alt="" draggable="false">
     </div>
     <div class="lb-caption">
@@ -569,7 +569,12 @@ const photoZoom = (() => {
   }, {passive:false});
   viewport.addEventListener('dblclick', e => {
     e.preventDefault();
-    if (Date.now() - lastTouchInput > 650) toggle(e.clientX,e.clientY);
+  });
+  viewport.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    if (e.pointerType !== 'touch' && e.button === 2 && Date.now() - lastTouchInput > 650){
+      zoomTo(scale / 1.5, e.clientX, e.clientY);
+    }
   });
   viewport.addEventListener('pointerdown', e => {
     if (!ready() || pointers.size >= 2 || (e.pointerType === 'mouse' && e.button !== 0)) return;
@@ -603,6 +608,9 @@ const photoZoom = (() => {
   function endPointer(e){
     const point = pointers.get(e.pointerId);
     if (!point) return;
+    if (e.type === 'pointerup' && e.pointerType === 'mouse' && e.button === 0 && !point.moved){
+      zoomTo(scale * 1.5, e.clientX, e.clientY);
+    }
     if (e.pointerType === 'touch'){
       lastTouchInput = Date.now();
       if (e.type === 'pointerup' && !point.moved && pointers.size === 1 && Date.now()-point.time < 300){
