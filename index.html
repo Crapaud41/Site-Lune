@@ -99,57 +99,29 @@
     font-weight:300;
   }
 
-  /* --- WIDGET (intégré au hero, visible sans scroll) --- */
-  .widget-card{
-    flex:0 0 auto;
-    width:min(480px, 100%);
-    border:1px solid var(--line);
-    border-radius:2px;
-    background:rgba(6,8,20,0.55);
-    backdrop-filter:blur(6px);
-    padding:1.8rem clamp(1.2rem, 2.4vw, 2.2rem);
-    display:grid;
-    grid-template-columns:auto 1fr;
-    gap:1.6rem;
-    align-items:center;
-  }
-  .moon-render{
-    width:96px; height:96px; flex-shrink:0;
-  }
-  .stats-grid{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:1.1rem;
-  }
-  .stat-label{
-    font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase;
-    color:var(--ink-dim); margin-bottom:0.35rem; font-weight:500;
-  }
-  .stat-value{
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.5rem; color:var(--gold-soft); font-weight:600;
-    line-height:1;
-  }
-  .stat-value span{font-size:0.78rem; color:var(--ink-dim); font-family:'Work Sans',sans-serif; font-weight:300;}
-  .phase-name{
-    grid-column:1 / -1;
-    padding-top:0.9rem; margin-top:0.2rem;
-    border-top:1px solid var(--line);
-    font-family:'Cormorant Garamond', serif;
-    font-style:italic; font-size:1.02rem; color:var(--ink);
-  }
-  .updated-at{
-    grid-column:1/-1;
-    font-size:0.62rem; color:var(--ink-dim); opacity:0.55; letter-spacing:0.04em;
-  }
-
+  /* --- Widget lunaire repris de Lune-Site --- */
+  .moon-card{position:absolute;z-index:3;right:6.3vw;bottom:7vh;width:min(380px,38vw);padding:1.5rem;border:1px solid var(--line);background:rgba(9,11,18,0.82);box-shadow:0 16px 50px rgba(0,0,0,0.22);backdrop-filter:blur(10px);}
+  .moon-card-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.3rem;color:var(--ink-dim);font-size:0.58rem;font-weight:700;letter-spacing:0.16em;}
+  .live-dot{color:var(--gold-soft);white-space:nowrap;}
+  .live-dot::before{display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:var(--gold);content:"";vertical-align:1px;}
+  .moon-summary{display:flex;align-items:center;gap:1rem;padding-bottom:1.2rem;}
+  .moon-visual{position:relative;display:grid;width:72px;height:72px;flex:0 0 72px;place-items:center;overflow:hidden;border-radius:50%;background:#eee8d7;box-shadow:0 0 26px rgba(240,217,168,0.15);}
+  .moon-visual svg{display:block;width:100%;height:100%;}
+  .moon-summary h2{color:var(--ink);font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;font-weight:500;}
+  .muted{margin-top:0.3rem;color:var(--ink-dim);font-size:0.68rem;}
+  .moon-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.75rem;padding:1rem 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .moon-stats>div{min-width:0;}
+  .stat-label{display:block;margin-bottom:0.35rem;color:var(--ink-dim);font-size:0.53rem;letter-spacing:0.1em;}
+  .moon-stats strong{color:var(--ink);font-size:clamp(0.75rem,1.1vw,0.95rem);font-weight:600;overflow-wrap:anywhere;}
+  .text-link{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-top:1rem;color:var(--gold-soft);font-size:0.68rem;text-decoration:none;}
+  .text-link:hover{color:white;}
   @media (max-width: 900px){
     .hero{align-items:center;}
     .hero-bottom{flex-direction:column; align-items:center; text-align:center; padding-bottom:2.4rem;}
     .hero-content{max-width:100%;}
     .hero-sub{margin:0 auto;}
-    .widget-card{grid-template-columns:1fr; text-align:center; justify-items:center; width:100%;}
-    .stats-grid{grid-template-columns:1fr 1fr; gap:1rem;}
+    .moon-card{position:relative; right:auto; bottom:auto; width:min(480px,100%); text-align:left;}
+    .moon-visual{width:58px; height:58px; flex-basis:58px;}
     .navlinks{gap:0.9rem;}
     .navlinks a{font-size:0.6rem;}
     nav{grid-template-columns:auto 1fr; padding:16px 5vw;}
@@ -181,120 +153,70 @@
       <p class="hero-sub">Mes photos du ciel et de la Nature.</p>
     </div>
 
-    <div class="widget-card" id="widget">
-      <svg class="moon-render" id="moonSvg" viewBox="0 0 200 200" aria-hidden="true">
-        <defs>
-          <radialGradient id="moonGlow" cx="50%" cy="50%" r="60%">
-            <stop offset="0%" stop-color="#3a3f5c" stop-opacity="0.35"/>
-            <stop offset="100%" stop-color="#3a3f5c" stop-opacity="0"/>
-          </radialGradient>
-          <radialGradient id="moonSurface" cx="34%" cy="30%" r="74%">
-            <stop offset="0%" stop-color="#fff1d0"/>
-            <stop offset="58%" stop-color="#e8c17a"/>
-            <stop offset="100%" stop-color="#b99b60"/>
-          </radialGradient>
-          <clipPath id="moonClip"><circle cx="100" cy="100" r="82"/></clipPath>
-        </defs>
-        <circle cx="100" cy="100" r="98" fill="url(#moonGlow)"/>
-        <circle cx="100" cy="100" r="82" fill="#1b1f38" stroke="rgba(232,193,122,0.25)" stroke-width="1"/>
-        <g clip-path="url(#moonClip)">
-          <path id="litPath" fill="url(#moonSurface)" opacity="0.96"></path>
-          <g class="moon-craters" fill="#8f7b58" opacity="0.38">
-            <circle cx="69" cy="71" r="6.8"/>
-            <circle cx="131" cy="119" r="10.2"/>
-            <circle cx="86" cy="138" r="4.8"/>
-            <circle cx="117" cy="61" r="3.9"/>
-          </g>
-          <g class="moon-crater-highlights" fill="#fff0cf" opacity="0.24">
-            <circle cx="67" cy="69" r="2.3"/>
-            <circle cx="128" cy="116" r="3.5"/>
-            <circle cx="84" cy="136" r="1.6"/>
-          </g>
-        </g>
-        <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(232,193,122,0.35)" stroke-width="1"/>
-      </svg>
-
-      <div class="stats-grid">
-        <div>
-          <div class="stat-label">Illumination</div>
-          <div class="stat-value" id="statIllum">—<span>%</span></div>
-        </div>
-        <div>
-          <div class="stat-label">Distance</div>
-          <div class="stat-value" id="statDist">—<span> km</span></div>
-        </div>
-        <div>
-          <div class="stat-label">Âge</div>
-          <div class="stat-value" id="statAge">—<span> j</span></div>
-        </div>
-        <div class="phase-name" id="phaseName">Calcul en cours…</div>
-        <div class="updated-at" id="updatedAt"></div>
+    <aside class="moon-card" id="widget" aria-label="Informations lunaires en direct">
+      <div class="moon-card-head"><span>LA LUNE MAINTENANT</span><span class="live-dot">EN DIRECT</span></div>
+      <div class="moon-summary">
+        <div id="moon-visual" class="moon-visual" aria-label="Illustration de la phase lunaire" title="Calcul en cours…"></div>
+        <div><h2 id="phase-name">Calcul en cours…</h2><p id="moon-date" class="muted">Calcul en cours…</p></div>
       </div>
-    </div>
+      <div class="moon-stats">
+        <div><span class="stat-label">ÉCLAIRÉE</span><strong id="illumination">—</strong></div>
+        <div><span class="stat-label">DISTANCE</span><strong id="distance">—</strong></div>
+        <div><span class="stat-label">ÂGE</span><strong id="age">—</strong></div>
+      </div>
+      <a class="text-link" href="widget.html">En savoir plus sur les données <span aria-hidden="true">→</span></a>
+    </aside>
   </div>
 </section>
 
 <script src="astronomy.min.js"></script>
 <script>
-/* ---------- Calcul de phase lunaire (Astronomy Engine — précision réelle) ---------- */
-const KM_PER_AU = 149597870.7;
-
-function getMoonData(date){
-  const illum = Astronomy.Illumination(Astronomy.Body.Moon, date);
-  const illumination = illum.phase_fraction * 100; // 0-100 %
-  const distance = illum.geo_dist * KM_PER_AU; // km
-
-  const phaseAngle = Astronomy.MoonPhase(date); // 0-360°, 0=nouvelle, 180=pleine
-  const phaseFraction = phaseAngle / 360; // pour le dessin SVG
-
-  const prevNewMoon = Astronomy.SearchMoonPhase(0, date, -40);
-  const age = (date.getTime() - prevNewMoon.date.getTime()) / 86400000;
-
-  let name;
-  if (phaseAngle < 6 || phaseAngle > 354) name = "Nouvelle lune";
-  else if (phaseAngle < 84) name = "Premier croissant";
-  else if (phaseAngle < 96) name = "Premier quartier";
-  else if (phaseAngle < 174) name = "Lune gibbeuse croissante";
-  else if (phaseAngle < 186) name = "Pleine lune";
-  else if (phaseAngle < 264) name = "Lune gibbeuse décroissante";
-  else if (phaseAngle < 276) name = "Dernier quartier";
-  else name = "Dernier croissant";
-
-  return { age, illumination, distance, phaseFraction, name };
+/* ---------- Widget lunaire repris de Lune-Site ---------- */
+function getPhaseName(phase){
+  const angle=((phase%360)+360)%360;
+  if(angle<8||angle>=352)return "Nouvelle lune";
+  if(angle<82)return "Premier croissant";
+  if(angle<98)return "Premier quartier";
+  if(angle<172)return "Gibbeuse croissante";
+  if(angle<188)return "Pleine lune";
+  if(angle<262)return "Gibbeuse décroissante";
+  if(angle<278)return "Dernier quartier";
+  return "Dernier croissant";
 }
-
-/* ---------- Dessin SVG de la forme réelle ---------- */
-// p = phaseFraction (0 = nouvelle lune, 0.5 = pleine lune, 1 = nouvelle lune suivante)
-function drawMoonShape(p){
-  const cx = 100, cy = 100, r = 82;
-  const path = document.getElementById('litPath');
-
-  const theta = p * 2 * Math.PI;
-  const rx = Math.abs(r * Math.cos(theta));
-  const sweepOuter = p < 0.5 ? 1 : 0;
-  const sweepInner = (p < 0.25 || p > 0.75) ? (1 - sweepOuter) : sweepOuter;
-
-  const d = `M ${cx} ${cy-r}
-             A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r}
-             A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z`;
-  path.setAttribute('d', d);
+function drawMoon(phase,illumination){
+  const moon=document.getElementById("moon-visual");
+  if(!moon)return;
+  const angle=((phase%360)+360)%360;
+  const cosine=Math.cos(angle*Math.PI/180);
+  const radius=Math.abs(cosine*48).toFixed(2);
+  let litShape;
+  if(illumination>0.999){litShape='<circle cx="50" cy="50" r="48" fill="#eee5ce" />';}
+  else if(angle<180){const sweep=cosine>=0?1:0;litShape='<path d="M 50 2 A 48 48 0 0 1 50 98 A '+radius+' 48 0 0 '+sweep+' 50 2 Z" fill="#eee5ce" />';}
+  else{const sweep=cosine>0?1:0;litShape='<path d="M 50 2 A 48 48 0 0 0 50 98 A '+radius+' 48 0 0 '+sweep+' 50 2 Z" fill="#eee5ce" />';}
+  moon.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="moon-disc"><circle cx="50" cy="50" r="48"></circle></clipPath></defs><circle cx="50" cy="50" r="48" fill="#171a24"></circle><g clip-path="url(#moon-disc)">'+litShape+'<g fill="#a99d82" opacity=".48"><circle cx="32" cy="33" r="4"></circle><circle cx="68" cy="61" r="6"></circle><circle cx="42" cy="72" r="2.8"></circle><circle cx="60" cy="27" r="2.3"></circle></g></g></svg>';
+  moon.setAttribute("title",getPhaseName(angle)+" — "+Math.round(illumination*100)+" % éclairée");
 }
-
-function updateWidget(){
-  const now = new Date();
-  const m = getMoonData(now);
-
-  document.getElementById('statIllum').innerHTML = m.illumination.toFixed(1) + '<span>%</span>';
-  document.getElementById('statDist').innerHTML = Math.round(m.distance).toLocaleString('fr-FR') + '<span> km</span>';
-  document.getElementById('statAge').innerHTML = m.age.toFixed(1) + '<span> j</span>';
-  document.getElementById('phaseName').textContent = m.name;
-  document.getElementById('updatedAt').textContent = 'Mis à jour ' + now.toLocaleTimeString('fr-FR');
-
-  drawMoonShape(m.phaseFraction);
+function updateMoon(){
+  const now=new Date();
+  const phaseElement=document.getElementById("phase-name");
+  const dateElement=document.getElementById("moon-date");
+  if(dateElement)dateElement.textContent=new Intl.DateTimeFormat("fr-FR",{dateStyle:"full",timeStyle:"short"}).format(now);
+  if(!window.Astronomy){if(phaseElement)phaseElement.textContent="Données momentanément indisponibles";return;}
+  try{
+    const phase=Astronomy.MoonPhase(now);
+    const illumination=(1-Math.cos(phase*Math.PI/180))/2;
+    const previousNewMoon=Astronomy.SearchMoonPhase(0,now,-35);
+    const ageInDays=Math.max(0,(now.getTime()-previousNewMoon.date.getTime())/86400000);
+    const distanceInKm=Astronomy.Libration(now).dist_km;
+    if(phaseElement)phaseElement.textContent=getPhaseName(phase);
+    document.getElementById("illumination").textContent=Math.round(illumination*100)+" %";
+    document.getElementById("distance").textContent=Math.round(distanceInKm).toLocaleString("fr-FR")+" km";
+    document.getElementById("age").textContent=ageInDays.toFixed(1).replace(".",",")+" jours";
+    drawMoon(phase,illumination);
+  }catch(error){if(phaseElement)phaseElement.textContent="Données momentanément indisponibles";console.error("Calcul lunaire indisponible",error);}
 }
-
-updateWidget();
-setInterval(updateWidget, 60000); // rafraîchit chaque minute
+updateMoon();
+setInterval(updateMoon,60000);
 </script>
 
 </body>
