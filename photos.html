@@ -135,6 +135,7 @@
   .lb-caption{ padding:1rem 1.4rem 1.2rem; text-align:center; }
   .lightbox-content .lb-sub{font-family:Georgia,'Times New Roman',serif; font-style:italic; font-size:1.25rem; color:var(--gold-soft);}
   .lightbox-content .lb-date{font-size:0.78rem; color:var(--ink-dim); margin-top:0.3rem;}
+  .lb-position{margin-top:.55rem;color:var(--ink-dim);font-size:.68rem;letter-spacing:.1em;font-variant-numeric:tabular-nums;}
   .lightbox-close{
     flex:none; background:none; border:none;
     color:var(--ink-dim); font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase;
@@ -237,6 +238,7 @@
     <div class="lb-caption">
       <div class="lb-sub" id="lbSub">—</div>
       <div class="lb-date" id="lbDate"></div>
+      <div class="lb-position" id="lbPosition" aria-live="polite" aria-atomic="true"></div>
     </div>
   </div>
   <button class="lb-arrow" id="lbPrev" aria-label="Photo précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -365,6 +367,7 @@ let currentCategory = null;
 let currentFilter = 0;
 let currentItems = [];
 let currentPage = 0;
+const PHOTOS_PER_PAGE = 22;
 const galleryPagination = document.getElementById('galleryPagination');
 
 function buildFilterTabs(category){
@@ -391,7 +394,7 @@ function renderGrid(){
   const meta = CATEGORY_META[currentCategory];
   const grid = document.getElementById('galleryGrid');
   const items = currentItems.filter(it => it.sub === Number(currentFilter));
-  const pageSize = 22;
+  const pageSize = PHOTOS_PER_PAGE;
   const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
   currentPage = Math.min(currentPage, pageCount - 1);
   visibleItems = items.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
@@ -519,7 +522,7 @@ const photoZoom = (() => {
   function fit(){
     if (!img.naturalWidth || !img.naturalHeight) return;
     const maxWidth = Math.min(720, window.innerWidth * .9);
-    const maxHeight = Math.max(80, Math.min(window.innerHeight * .7, window.innerHeight - 180));
+    const maxHeight = Math.max(80, Math.min(window.innerHeight * .7, window.innerHeight - 210));
     const ratio = Math.min(1, maxWidth / img.naturalWidth, maxHeight / img.naturalHeight);
     viewport.style.width = `${img.naturalWidth * ratio}px`;
     viewport.style.height = `${img.naturalHeight * ratio}px`;
@@ -661,7 +664,12 @@ function showLightbox(){
   sub.textContent = desc || meta.subLabels[item.sub];
   sub.style.display = '';
   document.getElementById('lbDate').textContent = date;
-  document.querySelector('.lb-caption').style.display = (desc || date) ? '' : 'none';
+  const photoPosition = currentPage * PHOTOS_PER_PAGE + lbIndex + 1;
+  const photoTotal = currentItems.filter(it => it.sub === Number(currentFilter)).length;
+  const position = document.getElementById('lbPosition');
+  position.textContent = `${photoPosition} / ${photoTotal}`;
+  position.setAttribute('aria-label', `Photographie ${photoPosition} sur ${photoTotal}`);
+  document.querySelector('.lb-caption').style.display = '';
   document.getElementById('lbPrev').hidden = lbIndex <= 0;
   document.getElementById('lbNext').hidden = lbIndex >= visibleItems.length - 1;
   [lbIndex - 1, lbIndex + 1].forEach(j => { if (visibleItems[j]) new Image().src = visibleItems[j].url; });  // précharge les voisines
