@@ -188,12 +188,28 @@
             <stop offset="0%" stop-color="#3a3f5c" stop-opacity="0.35"/>
             <stop offset="100%" stop-color="#3a3f5c" stop-opacity="0"/>
           </radialGradient>
+          <radialGradient id="moonSurface" cx="34%" cy="30%" r="74%">
+            <stop offset="0%" stop-color="#fff1d0"/>
+            <stop offset="58%" stop-color="#e8c17a"/>
+            <stop offset="100%" stop-color="#b99b60"/>
+          </radialGradient>
           <clipPath id="moonClip"><circle cx="100" cy="100" r="82"/></clipPath>
         </defs>
         <circle cx="100" cy="100" r="98" fill="url(#moonGlow)"/>
         <circle cx="100" cy="100" r="82" fill="#1b1f38" stroke="rgba(232,193,122,0.25)" stroke-width="1"/>
         <g clip-path="url(#moonClip)">
-          <path id="litPath" fill="#e8c17a" opacity="0.92"></path>
+          <path id="litPath" fill="url(#moonSurface)" opacity="0.96"></path>
+          <g class="moon-craters" fill="#8f7b58" opacity="0.38">
+            <circle cx="69" cy="71" r="6.8"/>
+            <circle cx="131" cy="119" r="10.2"/>
+            <circle cx="86" cy="138" r="4.8"/>
+            <circle cx="117" cy="61" r="3.9"/>
+          </g>
+          <g class="moon-crater-highlights" fill="#fff0cf" opacity="0.24">
+            <circle cx="67" cy="69" r="2.3"/>
+            <circle cx="128" cy="116" r="3.5"/>
+            <circle cx="84" cy="136" r="1.6"/>
+          </g>
         </g>
         <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(232,193,122,0.35)" stroke-width="1"/>
       </svg>
