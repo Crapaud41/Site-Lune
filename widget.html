@@ -10,129 +10,166 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg-deep:#060814;
-    --gold:#e8c17a;
-    --gold-soft:#f0d9a8;
-    --ink:#eef0f8;
-    --ink-dim:#a9adc4;
-    --line:rgba(232,193,122,0.18);
+    --bg-deep:#060814;--gold:#e8c17a;--gold-soft:#f0d9a8;
+    --ink:#eef0f8;--ink-dim:#a9adc4;--line:rgba(232,193,122,.18);
+    --cream:#f6f1e7;--muted:#c6c5c4;--panel-line:rgba(255,255,255,.21);
   }
-  *{box-sizing:border-box;margin:0;padding:0;}
+  *{box-sizing:border-box;margin:0;padding:0}
   body{
-    color:var(--ink);
-    font-family:'Work Sans', -apple-system, sans-serif;
-    -webkit-font-smoothing:antialiased;
-    min-height:100vh;
-    position:relative;
-    overflow-x:hidden;
-    background:
-      linear-gradient(180deg, rgba(6,8,20,0.88) 0%, rgba(6,8,20,0.8) 40%, rgba(6,8,20,0.94) 100%),
-      url('bg-reeds.jpg');
-    background-size:cover; background-position:center; background-attachment:fixed;
+    color:var(--ink);font-family:'Work Sans',-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;position:relative;
+    height:100vh;height:100dvh;overflow:hidden;
+    background:linear-gradient(180deg,rgba(6,8,20,.76),rgba(6,8,20,.65) 42%,rgba(6,8,20,.92)),url('bg-reeds.jpg') center/cover no-repeat;
+    background-color:var(--bg-deep);
   }
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
-  }
-
   nav{
+    position:fixed; top:0; left:0; right:0; z-index:100;
     display:grid; grid-template-columns:1fr auto 1fr; align-items:center;
-    padding:22px 5vw; border-bottom:1px solid var(--line);
-    background:rgba(6,8,20,0.35); backdrop-filter:blur(4px);
-    position:relative; z-index:2;
+    padding:22px 5vw;
+    background:linear-gradient(to bottom, rgba(6,8,20,0.75), transparent);
+    backdrop-filter:blur(2px);
   }
   .brand{
-    font-family:'Cormorant Garamond', serif; font-size:1.5rem;
-    letter-spacing:0.06em; color:var(--gold-soft); font-weight:600;
-    text-decoration:none;
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.5rem; letter-spacing:0.06em; color:var(--gold-soft);
+    font-weight:600; text-decoration:none;
   }
   .navlinks{list-style:none; display:flex; gap:2.6rem;}
   .navlinks a{
     color:var(--ink-dim); text-decoration:none; font-size:0.82rem;
     letter-spacing:0.14em; text-transform:uppercase; font-weight:500;
+    position:relative; padding-bottom:4px; transition:color 0.25s;
   }
   .navlinks a.active{color:var(--gold-soft);}
+  .navlinks a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--gold); transition:width 0.3s ease;
+  }
   .navlinks a:hover{color:var(--ink);}
-
+  .navlinks a:hover::after{width:100%;}
   main{
-    padding:2.4rem 5vw;
-    min-height:calc(100vh - 73px);
-    display:flex; align-items:center;
+    height:100%;padding:100px 5vw 58px;display:flex;align-items:center;
+    min-height:0;
   }
   .widget-layout{
-    display:grid; grid-template-columns:1.15fr 0.65fr 1fr; gap:2.5rem;
-    align-items:start; width:100%;
+    display:grid;grid-template-columns:minmax(0,1.2fr) minmax(140px,.65fr) minmax(0,.95fr);
+    gap:clamp(12px,2vw,28px);align-items:stretch;width:100%;min-height:0;
   }
-  .phases-section{display:flex; flex-direction:column; gap:2.6rem;}
-
-  /* --- Lune du jour --- */
-  .moon-today{
-    align-self:center; display:flex; flex-direction:column;
-    align-items:center; gap:0.9rem; padding-top:2.4rem;
+  .cal-section,.moon-today,.phases-section{
+    border:1px solid var(--panel-line);background:rgba(12,17,26,.64);
+    backdrop-filter:blur(14px);box-shadow:0 20px 65px #0002;
+    padding:clamp(14px,1.6vw,24px);min-width:0;min-height:0;
   }
-  .moon-today-visual{width:min(180px, 80%);}
-  .moon-today-caption{text-align:center;}
-  .moon-today-percent{
-    font-family:'Cormorant Garamond', serif; font-size:1.6rem; color:var(--gold-soft); font-weight:600;
+  .panel-eyebrow{
+    color:#e4c38a;font-size:.59rem;letter-spacing:.19em;text-transform:uppercase;
+    line-height:1.4;
   }
-  .moon-today-name{font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); margin-top:0.2rem;}
-
-  h2{
-    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
-    font-size:1.4rem; color:var(--gold-soft); margin-bottom:1.2rem;
-  }
-  section{margin-bottom:0;}
-
-  /* --- Comptes à rebours --- */
-  .countdown-card{
-    border:1px solid var(--line); padding:1.8rem 1.6rem;
-    background:linear-gradient(180deg, rgba(232,193,122,0.035), transparent 60%);
-  }
-  .countdown-label{
-    font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
-    color:var(--ink-dim); margin-bottom:0.8rem;
-  }
-  .countdown-timer{
-    font-family:'Cormorant Garamond', serif; font-size:2rem; color:var(--gold-soft);
-    font-weight:600; margin-bottom:0.5rem;
-  }
-  .countdown-timer span{font-size:1rem; color:var(--ink-dim); font-family:'Work Sans',sans-serif; font-weight:300;}
-  .countdown-date{font-size:0.78rem; color:var(--ink-dim);}
-
-  /* --- Calendrier --- */
-  .cal-header{
-    display:flex; justify-content:space-between; align-items:baseline;
-    margin-bottom:1.2rem;
-  }
-  .cal-month{font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.4rem; color:var(--gold-soft);}
-  .cal-grid{
-    display:grid; grid-template-columns:repeat(7, 1fr); gap:0.4rem;
-  }
-  .cal-dow{
-    text-align:center; font-size:0.62rem; letter-spacing:0.1em;
-    text-transform:uppercase; color:var(--ink-dim); padding-bottom:0.5rem;
-  }
+  .cal-header{margin-bottom:16px}
+  .cal-month{font:500 clamp(1.5rem,2.3vw,2rem)/1.1 'Cormorant Garamond',Georgia,serif;color:var(--cream);margin-top:5px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+  .cal-dow{text-align:center;font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;color:#b7b9c2;padding-bottom:7px}
   .cal-day{
-    aspect-ratio:1; border:1px solid var(--line); display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:0.3rem; position:relative;
+    height:clamp(22px,5.6vh,54px);height:clamp(22px,5.6dvh,54px);
+    border:1px solid #ffffff1b;background:#ffffff02;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;position:relative;
   }
-  .cal-day.empty{border-color:transparent;}
-  .cal-day.today{border-color:var(--gold);}
-  .cal-daynum{font-size:0.66rem; color:var(--ink-dim); position:absolute; top:4px; left:6px;}
-  .cal-day svg{width:60%; height:60%; margin-top:6px;}
-
-  @media (max-width: 900px){
-    main{min-height:auto; display:block; padding:2rem 5vw 3rem;}
-    .widget-layout{grid-template-columns:1fr; gap:2.4rem;}
-    .moon-today{padding-top:0;}
+  .cal-day.empty{border-color:transparent;background:transparent}
+  .cal-day.today{border-color:#e4c38a;background:#e4c38a10}
+  .cal-daynum{font-size:.61rem;color:var(--muted);position:absolute;top:3px;left:5px;font-variant-numeric:tabular-nums}
+  .cal-day.today .cal-daynum{color:#f0d9a8}
+  .cal-day svg{width:60%;height:calc(100% - 12px);max-height:32px;margin-top:9px;overflow:visible}
+  .widget-layout svg [fill="#e8c17a"]{fill:#e9dfc8}
+  .widget-layout svg [fill="#1b1f38"]{fill:#202633}
+  .moon-today{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
+  .moon-today .panel-eyebrow{margin-bottom:3px}
+  .moon-today-visual{width:min(100%,215px);min-height:0}
+  .moon-today-visual svg{display:block;width:100%;height:100%;max-height:31vh;max-height:31dvh}
+  .moon-today-percent{font:500 clamp(1.8rem,3.1vw,2.8rem)/1.05 'Cormorant Garamond',Georgia,serif;color:var(--cream);font-variant-numeric:tabular-nums}
+  .moon-today-label{font-size:.6rem;color:var(--muted);margin-top:4px}
+  .moon-today-name{font-size:.57rem;line-height:1.6;letter-spacing:.1em;text-transform:uppercase;color:#e4c38a;margin-top:13px}
+  .phases-section{display:flex;flex-direction:column;justify-content:center;gap:14px}
+  h2{font:500 clamp(1.3rem,2vw,1.8rem)/1.12 'Cormorant Garamond',Georgia,serif;color:var(--cream);margin:0 0 3px}
+  .countdown-card{border:1px solid #ffffff22;padding:18px;background:linear-gradient(135deg,#ffffff04,transparent)}
+  .countdown-label{font-size:.57rem;line-height:1.5;letter-spacing:.13em;text-transform:uppercase;color:#c6c5c4;margin-bottom:9px}
+  .countdown-timer{font:500 clamp(1.5rem,2.5vw,2.3rem)/1.15 'Cormorant Garamond',Georgia,serif;color:#f0d9a8;font-variant-numeric:tabular-nums;margin-bottom:8px;white-space:nowrap}
+  .countdown-timer span{font:300 .66rem 'Work Sans',sans-serif;color:var(--muted)}
+  .countdown-date{font-size:.65rem;line-height:1.6;color:#b5b8c3}
+  .widget-footnote{position:absolute;bottom:19px;left:5vw;right:5vw;text-align:center;color:#a4a7b1;font-size:.61rem;font-weight:300;line-height:1.5}
+  .widget-footnote time{color:#e4c38a;white-space:nowrap;font-variant-numeric:tabular-nums}
+  @media(max-width:900px){
+    .navlinks{gap:.9rem}.navlinks a{font-size:.6rem}
+    nav{grid-template-columns:auto 1fr;padding:16px 5vw}
+    .navlinks{justify-self:end}.brand{font-size:1.2rem}
+    main{padding-top:82px;padding-bottom:49px}
+    .cal-section,.moon-today,.phases-section{padding:14px}
+    .cal-grid{gap:4px}.cal-daynum{left:4px;top:2px;font-size:.55rem}
+    .cal-month{font-size:1.6rem}.countdown-card{padding:13px}
+    .countdown-timer{font-size:1.65rem}
   }
-
-  @media (max-width: 720px){
-    nav{grid-template-columns:auto 1fr; padding:16px 5vw;}
-    .navlinks{justify-self:end; gap:1rem;}
-    .navlinks a{font-size:0.62rem;}
-    .brand{font-size:1.2rem;}
-    .cal-day svg{width:50%; height:50%;}
+  @media(max-width:700px){
+    main{padding:77px 5vw 43px}
+    .widget-layout{grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:12px}
+    .cal-section{grid-column:1/-1}
+    .cal-header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px}
+    .cal-month{font-size:1.6rem;margin-top:0}
+    .panel-eyebrow{font-size:.5rem;letter-spacing:.13em}
+    .cal-grid{gap:4px}
+    .cal-dow{font-size:.52rem;padding-bottom:3px}
+    .cal-day{height:clamp(22px,calc((100vh - 360px)/8),50px);height:clamp(22px,calc((100dvh - 360px)/8),50px)}
+    .cal-day svg{width:55%;max-height:29px}
+    .moon-today,.phases-section{padding:12px}
+    .moon-today{gap:9px}
+    .moon-today-visual{width:min(100%,160px)}
+    .moon-today-visual svg{max-height:18vh;max-height:18dvh}
+    .moon-today-percent{font-size:2rem}
+    .moon-today-name{font-size:.5rem;letter-spacing:.05em;margin-top:8px}
+    .moon-today-label{font-size:.53rem}
+    .phases-section{gap:9px}
+    h2{font-size:1.25rem;margin-bottom:1px}
+    .countdown-card{padding:11px 10px}
+    .countdown-label{font-size:.5rem;letter-spacing:.08em;margin-bottom:5px}
+    .countdown-timer{font-size:1.6rem;margin-bottom:5px}
+    .countdown-timer span{font-size:.53rem}
+    .countdown-date{font-size:.55rem;line-height:1.4}
+    .widget-footnote{bottom:13px;font-size:.54rem}
   }
+  @media(max-width:700px) and (max-height:650px){
+    main{padding-top:71px;padding-bottom:36px}
+    .widget-layout{gap:8px}
+    .cal-section{padding:10px}
+    .cal-header{margin-bottom:7px}
+    .cal-month{font-size:1.3rem}
+    .cal-grid{gap:3px}
+    .cal-daynum{font-size:.5rem;top:2px;left:3px}
+    .moon-today,.phases-section{padding:10px}
+    .moon-today{gap:5px}
+    .moon-today-visual svg{max-height:14vh;max-height:14dvh}
+    .moon-today-percent{font-size:1.7rem}
+    .moon-today-name{font-size:.46rem;margin-top:5px}
+    .phases-section{gap:7px}h2{font-size:1.08rem}
+    .countdown-card{padding:8px}
+    .countdown-label{font-size:.45rem;margin-bottom:4px}
+    .countdown-timer{font-size:1.33rem;margin-bottom:4px}
+    .countdown-timer span{font-size:.47rem}
+    .countdown-date{font-size:.49rem}
+    .widget-footnote{bottom:9px;font-size:.5rem}
+  }
+  @media(min-width:701px) and (max-height:600px){
+    main{padding-top:83px;padding-bottom:39px}
+    .cal-section,.moon-today,.phases-section{padding:12px}
+    .cal-header{margin-bottom:9px}.cal-month{font-size:1.4rem}
+    .cal-grid{gap:3px}.cal-day{height:clamp(18px,5.2vh,29px)}
+    .cal-dow{padding-bottom:3px}
+    .panel-eyebrow{font-size:.5rem}
+    .phases-section{gap:9px}h2{font-size:1.3rem}
+    .countdown-card{padding:11px}.countdown-timer{font-size:1.6rem}
+    .countdown-label{font-size:.5rem;margin-bottom:6px}
+    .countdown-date{font-size:.56rem}
+    .moon-today{gap:9px}.moon-today-visual svg{max-height:26vh}
+    .moon-today-percent{font-size:1.8rem}
+    .widget-footnote{bottom:10px}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 </style>
 </head>
 <body>
@@ -147,19 +184,22 @@
   </ul>
 </nav>
 
-<main>
+<main aria-label="La Lune en direct">
   <div class="widget-layout">
     <section class="cal-section">
       <div class="cal-header">
+        <p class="panel-eyebrow">Calendrier lunaire</p>
         <div class="cal-month" id="calMonth">—</div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
     </section>
 
     <div class="moon-today">
+      <p class="panel-eyebrow">La Lune aujourd’hui</p>
       <div class="moon-today-visual" id="moonTodayVisual"></div>
       <div class="moon-today-caption">
         <div class="moon-today-percent" id="moonTodayPercent">—%</div>
+        <div class="moon-today-label">Éclairée</div>
         <div class="moon-today-name" id="moonTodayName">—</div>
       </div>
     </div>
@@ -179,6 +219,8 @@
     </section>
   </div>
 </main>
+
+<footer class="widget-footnote">Données astronomiques calculées sur ton appareil · <time id="widgetUpdated"></time></footer>
 
 <script src="astronomy.min.js"></script>
 <script>
@@ -321,5 +363,11 @@ buildCalendar();
 buildMoonToday();
 </script>
 
+<script>
+const widgetCalculatedAt = new Date();
+const widgetUpdated = document.getElementById('widgetUpdated');
+widgetUpdated.dateTime = widgetCalculatedAt.toISOString();
+widgetUpdated.textContent = widgetCalculatedAt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+</script>
 </body>
 </html>
