@@ -92,3 +92,76 @@
  .filter-gallery .filter-copy{font-size:.68rem;line-height:1.4}
 }
 @media(prefers-reduced-motion:reduce){.filter-gallery[open]{animation:none}.filter-gallery .moon-photo,.open-filters span{transition:none}}
+
+/* Deux accès aux accessoires, au même niveau dans la fiche du télescope. */
+.data-note{align-items:center}
+.observation-note{min-width:0}
+.equipment-categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;flex:0 0 190px}
+.equipment-category{min-height:48px;padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e4c38a60;background:#e4c38a08;color:#e4c38a;font:400 .73rem/1.2 'Work Sans',sans-serif;cursor:pointer;transition:background .18s,border-color .18s}
+.equipment-category:hover{background:#e4c38a18;border-color:#e4c38a}
+.equipment-category:focus-visible{outline:2px solid #e4c38a;outline-offset:3px}
+.equipment-category span{font-size:1rem}
+.eyepiece-gallery .eyepiece-choices{grid-template-columns:repeat(7,minmax(0,1fr))}
+.eyepiece-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px;flex:1;min-height:0}
+.eyepiece-stage{position:relative;min-width:0;min-height:0;border:1px solid #ffffff15;background:radial-gradient(ellipse at 50% 70%,#e4c38a0c,transparent 70%);overflow:hidden}
+.eyepiece-photo{position:absolute;inset:7%;width:86%;height:86%;object-fit:contain;filter:drop-shadow(0 18px 20px #0006);transition:opacity .16s ease}
+.eyepiece-stage[data-loading="true"] .eyepiece-photo{opacity:0}
+.eyepiece-status{position:absolute;inset:0;display:grid;place-items:center;padding:20px;font-size:.75rem;color:#c2c4ce}
+.eyepiece-stage-label{position:absolute;bottom:15px;left:15px;right:15px;text-align:center;color:#a1a5b1;font-size:.58rem;text-transform:uppercase;letter-spacing:.16em}
+.eyepiece-details{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;min-width:0;min-height:0}
+.eyepiece-favorite{border:1px solid #e4c38a50;background:#e4c38a0e;color:#e4c38a;font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;padding:8px 10px;margin-bottom:19px}
+.eyepiece-kicker{color:#b2b5c0;text-transform:uppercase;letter-spacing:.16em;font-size:.6rem;margin-bottom:5px}
+.eyepiece-gallery #eyepiece-name{font-size:clamp(2rem,4.3vw,3.7rem);margin-bottom:14px}
+.eyepiece-description{max-width:31em;color:#c2c4ce;font-size:.81rem;line-height:1.65;font-weight:300}
+.eyepiece-magnification{display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;margin-top:22px;padding:14px 18px;border:1px solid #e4c38a33;background:#e4c38a06}
+.eyepiece-magnification span{color:#c2c4ce;font-size:.67rem;max-width:13em;line-height:1.5}
+.eyepiece-magnification strong{color:#e4c38a;font:500 clamp(1.7rem,3vw,2.5rem)/1.1 'Cormorant Garamond',Georgia,serif;white-space:nowrap}
+.eyepiece-formula{color:#e4c38a;font-size:.68rem;margin-top:10px;font-variant-numeric:tabular-nums}
+.eyepiece-setup{color:#9298a9;font-size:.65rem;line-height:1.6;margin-top:13px}
+@media(max-width:900px){
+ .data-note{flex-direction:column;align-items:stretch;gap:10px}
+ .equipment-categories{flex:auto;width:100%}
+ .equipment-category{min-height:40px}
+}
+@media(max-width:900px) and (max-height:700px){
+ .observation-note{display:none}
+ .data-note{gap:0}
+}
+@media(max-width:700px){
+ .eyepiece-gallery .eyepiece-choices{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .eyepiece-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:14px}
+ .eyepiece-stage{min-height:90px}
+ .eyepiece-photo{inset:5%;width:90%;height:90%}
+ .eyepiece-stage-label{display:none}
+ .eyepiece-favorite{font-size:.53rem;margin-bottom:10px;padding:6px 8px}
+ .eyepiece-kicker{font-size:.51rem}
+ .eyepiece-gallery #eyepiece-name{font-size:2rem;margin-bottom:8px}
+ .eyepiece-description{font-size:.7rem;line-height:1.5}
+ .eyepiece-magnification{margin-top:12px;padding:10px 12px}
+ .eyepiece-magnification span{font-size:.61rem}
+ .eyepiece-magnification strong{font-size:1.8rem}
+ .eyepiece-formula{font-size:.61rem;margin-top:7px}
+ .eyepiece-setup{font-size:.56rem;margin-top:7px}
+}
+@media(max-width:700px) and (max-height:650px){
+ .eyepiece-layout{grid-template-columns:83px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:14px}
+ .eyepiece-stage{min-height:0}
+ .eyepiece-favorite{font-size:.49rem;letter-spacing:.06em;margin-bottom:8px;padding:5px 6px}
+ .eyepiece-gallery #eyepiece-name{font-size:1.75rem;margin-bottom:7px}
+ .eyepiece-description{font-size:.64rem;line-height:1.45}
+ .eyepiece-kicker{font-size:.47rem}
+ .eyepiece-magnification{gap:6px;padding:8px;margin-top:12px;flex-wrap:wrap}
+ .eyepiece-magnification span{font-size:.56rem}
+ .eyepiece-magnification strong{font-size:1.65rem}
+ .eyepiece-formula{font-size:.56rem}
+ .eyepiece-setup{font-size:.53rem}
+}
+@media(min-width:701px) and (max-height:650px){
+ .eyepiece-gallery #eyepiece-name{font-size:2rem;margin-bottom:8px}
+ .eyepiece-favorite{margin-bottom:9px;padding:5px 8px;font-size:.53rem}
+ .eyepiece-description{font-size:.7rem;line-height:1.45}
+ .eyepiece-magnification{margin-top:12px;padding:8px 12px}
+ .eyepiece-magnification strong{font-size:1.7rem}
+ .eyepiece-setup{margin-top:8px;font-size:.59rem}
+}
+@media(prefers-reduced-motion:reduce){.equipment-category,.eyepiece-photo{transition:none}}

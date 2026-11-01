@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lune — Matériel</title>
-<link rel="stylesheet" href="filtres.css">
+<link rel="stylesheet" href="filtres.css?v=oculaires-1">
 <script src="filtres.js" defer></script>
+<script src="oculaires.js" defer></script>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -337,8 +338,11 @@
           </div>
 
           <div class="data-note">
-            <span>Pour observer les détails de la Lune, nuit après nuit.</span>
-            <span class="filters"><button class="open-filters" id="open-filters" type="button" aria-haspopup="dialog">Filtres <span aria-hidden="true">↗</span></button><br>&amp; oculaires</span>
+            <span class="observation-note">Pour observer les détails de la Lune, nuit après nuit.</span>
+            <div class="equipment-categories" aria-label="Découvrir mes accessoires">
+              <button class="equipment-category" id="open-filters" type="button" aria-haspopup="dialog">Filtres <span aria-hidden="true">↗</span></button>
+              <button class="equipment-category" id="open-eyepieces" type="button" aria-haspopup="dialog">Oculaires <span aria-hidden="true">↗</span></button>
+            </div>
           </div>
         </div>
       </section>
