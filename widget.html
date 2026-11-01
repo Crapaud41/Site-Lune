@@ -168,6 +168,109 @@
     .moon-today-percent{font-size:1.8rem}
     .widget-footnote{bottom:10px}
   }
+  button,input,select{font:inherit}
+  button{color:inherit;cursor:pointer}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold-soft);outline-offset:4px}
+  .calendar-heading{display:flex;align-items:center;gap:10px}
+  .calendar-heading .cal-month{margin:0;flex:1;text-align:center}
+  .cal-header .panel-eyebrow{margin-bottom:7px}
+  .quiet-button{border:1px solid #ffffff26;background:#06081430;color:var(--cream);transition:background .2s,border-color .2s}
+  .quiet-button:hover{background:#e4c38a18;border-color:#e4c38a88}
+  .month-arrow{width:28px;height:28px;flex-shrink:0;font-size:1.2rem;line-height:1}
+  .calendar-today{display:block;margin:10px auto 0;padding:5px 12px;font-size:.62rem;letter-spacing:.03em}
+  .calendar-today[hidden]{display:none}
+  button.cal-day{padding:0;color:var(--ink);font-family:inherit;transition:background .2s,border-color .2s}
+  button.cal-day:hover{background:#e4c38a18;border-color:#e4c38a88}
+  .cal-day.today:not(.selected){border-color:#e4c38a66;background:#e4c38a05}
+  .cal-day.selected{border-color:var(--gold-soft);background:#e4c38a1a}
+  .moon-open{display:block;width:min(100%,215px);min-height:0;border:0;padding:0;background:none;border-radius:50%;transition:transform .25s;cursor:zoom-in}
+  .moon-open:hover{transform:scale(1.035)}
+  .moon-open .moon-today-visual{display:block;width:100%}
+  .moon-today .panel-eyebrow{min-height:1.4em}
+  dialog.moon-dialog{position:fixed;inset:0;margin:auto;width:min(740px,92vw);max-height:92vh;max-height:92dvh;overflow:hidden;padding:26px 30px 23px;border:1px solid #e4c38a55;background:#101723f5;color:var(--cream);box-shadow:0 28px 100px #0009;backdrop-filter:blur(20px)}
+  .moon-dialog::backdrop{background:#030610bb;backdrop-filter:blur(7px)}
+  .moon-dialog[open]{animation:moon-reveal .22s ease-out}
+  @keyframes moon-reveal{from{opacity:0;transform:translateY(7px) scale(.98)}to{opacity:1;transform:none}}
+  .moon-dialog-header{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:12px}
+  .moon-dialog-header h2{font-size:1.8rem;margin-top:4px}
+  .moon-close{width:32px;height:32px;flex-shrink:0;font-size:1.5rem;line-height:1}
+  .moon-detail-body{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+  .moon-detail-visual{width:min(100%,270px);justify-self:center;touch-action:pan-y;user-select:none;cursor:ew-resize}
+  .moon-detail-visual svg{display:block;width:100%;height:auto;max-height:38vh;max-height:38dvh}
+  .detail-phase{font:500 1.5rem/1.1 'Cormorant Garamond',Georgia,serif;color:var(--gold-soft);margin-bottom:18px}
+  .moon-detail-stats{display:grid;gap:16px}
+  .moon-detail-stats div{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .moon-detail-stats dt{font-size:.66rem;color:#c6c5c4}
+  .moon-detail-stats dd{font:500 1.5rem/1.1 'Cormorant Garamond',Georgia,serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .detail-moment{font-size:.61rem;color:#b5b8c3;margin-top:16px}
+  .date-form{margin-top:18px;display:grid;grid-template-columns:.7fr 1.4fr 1fr auto;gap:9px;align-items:end}
+  .date-form label{display:grid;gap:6px;font-size:.6rem;color:#c6c5c4;letter-spacing:.04em}
+  .date-form select,.date-form input{width:100%;min-width:0;height:36px;padding:0 9px;border:1px solid #ffffff35;border-radius:0;background:#171e2b;color:var(--cream);color-scheme:dark;font-size:.8rem}
+  .date-form button{height:36px;padding:0 12px;font-size:.7rem}
+  .day-scrubber{margin-top:17px}
+  .day-scrubber input{width:100%;display:block;accent-color:var(--gold-soft);cursor:ew-resize;height:22px}
+  .scrubber-labels{display:flex;justify-content:space-between;font-size:.58rem;color:#a4a7b1;margin-top:3px}
+  .day-navigation{display:flex;justify-content:center;align-items:center;gap:13px;margin-top:14px}
+  .day-navigation button{min-height:32px;padding:5px 13px;font-size:.67rem}
+  .day-navigation .day-arrow{min-width:34px;font-size:1.15rem;padding:0}
+  @media(max-width:900px){.moon-open{width:min(100%,180px)}}
+  @media(max-width:700px){
+    .cal-header{display:block}
+    .cal-header .panel-eyebrow{display:none}
+    .calendar-heading{gap:8px}
+    .calendar-heading .cal-month{font-size:1.6rem}
+    .month-arrow{width:26px;height:26px}
+    .moon-open{width:min(100%,160px)}
+    .calendar-today{margin-top:7px;padding:4px 10px;font-size:.55rem}
+    .moon-dialog{padding:18px!important;width:min(460px,94vw)!important}
+    .moon-dialog-header{margin-bottom:5px}
+    .moon-dialog-header h2{font-size:1.55rem}
+    .moon-detail-body{grid-template-columns:1fr;gap:5px}
+    .moon-detail-visual{width:min(190px,25dvh)}
+    .moon-detail-visual svg{max-height:25dvh}
+    .detail-phase{text-align:center;font-size:1.25rem;margin-bottom:12px}
+    .moon-detail-stats{grid-template-columns:1fr 1.2fr 1fr;gap:8px;text-align:center}
+    .moon-detail-stats div{display:block}
+    .moon-detail-stats dt{font-size:.59rem;margin-bottom:5px}
+    .moon-detail-stats dd{font-size:1.3rem}
+    .detail-moment{text-align:center;margin-top:10px;font-size:.56rem}
+    .date-form{gap:7px;margin-top:16px;grid-template-columns:.7fr 1.4fr 1fr}
+    .date-form button{display:none}
+    .date-form input,.date-form select{font-size:.75rem;padding:0 6px}
+    .day-scrubber{margin-top:12px}
+    .day-navigation{margin-top:10px}
+  }
+  @media(max-width:700px) and (max-height:650px){
+    .calendar-heading .cal-month{font-size:1.3rem}
+    .month-arrow{width:23px;height:23px}
+    .cal-day{height:clamp(18px,calc((100dvh - 410px)/8),31px)}
+    .calendar-today{margin-top:5px;padding:2px 8px;font-size:.5rem}
+    .moon-dialog{padding:14px!important}
+    .moon-dialog-header h2{font-size:1.35rem}
+    .moon-close{width:28px;height:28px}
+    .moon-detail-visual{width:22dvh}
+    .moon-detail-visual svg{max-height:22dvh}
+    .detail-phase{margin-bottom:9px;font-size:1.15rem}
+    .moon-detail-stats dd{font-size:1.15rem}
+    .date-form{margin-top:12px}
+    .date-form select,.date-form input{height:32px}
+    .day-scrubber{margin-top:8px}
+  }
+  @media(min-width:701px) and (max-height:600px){
+    dialog.moon-dialog{padding:15px 24px}
+    .moon-dialog-header{margin-bottom:3px}
+    .moon-dialog-header h2{font-size:1.4rem}
+    .moon-detail-visual{width:29dvh}
+    .moon-detail-visual svg{max-height:29dvh}
+    .detail-phase{font-size:1.3rem;margin-bottom:9px}
+    .moon-detail-stats{gap:6px}
+    .moon-detail-stats dd{font-size:1.2rem}
+    .detail-moment{margin-top:8px}
+    .date-form{margin-top:8px}
+    .day-scrubber{margin-top:5px}
+    .day-navigation{margin-top:5px}
+  }
+
   @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 </style>
 </head>
@@ -188,14 +291,15 @@
     <section class="cal-section">
       <div class="cal-header">
         <p class="panel-eyebrow">Calendrier lunaire</p>
-        <div class="cal-month" id="calMonth">—</div>
+        <div class="calendar-heading"><button type="button" class="quiet-button month-arrow" id="previousMonth" aria-label="Mois précédent">‹</button><div class="cal-month" id="calMonth">—</div><button type="button" class="quiet-button month-arrow" id="nextMonth" aria-label="Mois suivant">›</button></div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
+      <button type="button" class="quiet-button calendar-today" id="calendarToday" hidden>Aujourd’hui</button>
     </section>
 
     <div class="moon-today">
-      <p class="panel-eyebrow">La Lune aujourd’hui</p>
-      <div class="moon-today-visual" id="moonTodayVisual"></div>
+      <p class="panel-eyebrow" id="moonContext">La Lune aujourd’hui</p>
+      <button type="button" class="moon-open" id="moonOpen" aria-haspopup="dialog" aria-controls="moonDialog" aria-label="Agrandir la Lune et choisir une date"><span class="moon-today-visual" id="moonTodayVisual"></span></button>
       <div class="moon-today-caption">
         <div class="moon-today-percent" id="moonTodayPercent">—%</div>
         <div class="moon-today-label">Éclairée</div>
@@ -204,7 +308,7 @@
     </div>
 
     <section class="phases-section">
-      <h2>Prochaines phases clés</h2>
+      <h2 id="phasesTitle">Prochaines phases clés</h2>
       <div class="countdown-card">
         <div class="countdown-label">Prochaine pleine lune</div>
         <div class="countdown-timer" id="cdFull">—</div>
@@ -221,152 +325,257 @@
 
 <footer class="widget-footnote">Données astronomiques calculées sur ton appareil · <time id="widgetUpdated"></time></footer>
 
+<dialog class="moon-dialog" id="moonDialog" aria-labelledby="detailDate" aria-describedby="detailMoment">
+  <header class="moon-dialog-header">
+    <div><p class="panel-eyebrow">Explorer la Lune</p><h2 id="detailDate">—</h2></div>
+    <button type="button" class="quiet-button moon-close" id="moonClose" aria-label="Fermer la vue agrandie" autofocus>×</button>
+  </header>
+  <div class="moon-detail-body">
+    <div class="moon-detail-visual" id="moonDetailVisual"></div>
+    <div>
+      <p class="detail-phase" id="detailPhase">—</p>
+      <dl class="moon-detail-stats" aria-live="polite" aria-atomic="true">
+        <div><dt>Éclairée</dt><dd id="detailIllumination">—</dd></div>
+        <div><dt>Distance Terre–Lune</dt><dd id="detailDistance">—</dd></div>
+        <div><dt>Âge de la Lune</dt><dd id="detailAge">—</dd></div>
+      </dl>
+      <p class="detail-moment" id="detailMoment">—</p>
+    </div>
+  </div>
+  <form class="date-form" id="dateForm">
+    <label for="dateDay">Jour<select id="dateDay" name="day" aria-label="Jour"></select></label>
+    <label for="dateMonth">Mois<select id="dateMonth" name="month" aria-label="Mois"></select></label>
+    <label for="dateYear">Année<input id="dateYear" name="year" type="number" min="1" max="9999" step="1" required inputmode="numeric" aria-label="Année"></label>
+    <button type="submit" class="quiet-button">Afficher</button>
+  </form>
+  <div class="day-scrubber">
+    <input type="range" id="daySlider" min="1" max="31" step="1" aria-label="Faire défiler les jours du mois">
+    <div class="scrubber-labels"><span id="sliderStart"></span><span id="sliderEnd"></span></div>
+  </div>
+  <div class="day-navigation">
+    <button type="button" class="quiet-button day-arrow" id="previousDay" aria-label="Jour précédent">‹</button>
+    <button type="button" class="quiet-button" id="todayButton">Aujourd’hui</button>
+    <button type="button" class="quiet-button day-arrow" id="nextDay" aria-label="Jour suivant">›</button>
+  </div>
+</dialog>
+
 <script src="astronomy.min.js"></script>
 <script>
+/* Dates locales : les journées explorées sont calculées à midi. */
 const KM_PER_AU = 149597870.7;
-const ORLEANS = new Astronomy.Observer(47.9, 1.9, 100);
+const DAY_MS = 86400000;
+const $ = id => document.getElementById(id);
+const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+let liveMode = true;
+let selectedInstant = new Date();
+let calendarMonth = new Date(selectedInstant.getFullYear(), selectedInstant.getMonth(), 1);
+let nextFullDate, nextNewDate;
+let svgSequence = 0;
 
-/* ---------- Icône lune miniature (même formule que l'accueil) ---------- */
-function moonIconSVG(phaseFraction, size){
-  const r = 40, cx = 50, cy = 50;
-  const theta = phaseFraction * 2 * Math.PI;
-  const rx = Math.abs(r * Math.cos(theta));
-  const sweepOuter = phaseFraction < 0.5 ? 1 : 0;
-  const sweepInner = (phaseFraction < 0.25 || phaseFraction > 0.75) ? (1 - sweepOuter) : sweepOuter;
-  const d = `M ${cx} ${cy-r} A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z`;
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <defs><clipPath id="clip-${Math.random().toString(36).slice(2)}"><circle cx="50" cy="50" r="${r}"/></clipPath></defs>
-    <circle cx="50" cy="50" r="${r}" fill="#1b1f38" stroke="rgba(232,193,122,0.3)" stroke-width="1"/>
-    <clipPath id="cc"><circle cx="50" cy="50" r="${r}"/></clipPath>
-    <path d="${d}" fill="#e8c17a" clip-path="url(#cc)"/>
-    <circle cx="50" cy="50" r="${r}" fill="none" stroke="rgba(232,193,122,0.35)" stroke-width="1"/>
+function localDate(year, month, day){
+  const d = new Date(2000, 0, 1, 12);
+  d.setFullYear(year, month, day);
+  return d;
+}
+function dateKey(d){ return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; }
+function daysInMonth(year, month){ return localDate(year, month + 1, 0).getDate(); }
+function readableDate(d){ return d.toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'}); }
+
+/* La surface éclairée du dessin utilise la même fraction que le chiffre. */
+function moonSVG(illumination, waxing, textured = false){
+  const k = Math.max(0, Math.min(1, illumination));
+  const r = 90, cx = 100, cy = 100;
+  const rx = Math.max(.00001, Math.abs(1 - 2 * k) * r);
+  const outer = waxing ? 1 : 0;
+  const inner = k < .5 ? 1 - outer : outer;
+  const d = `M ${cx} ${cy-r} A ${r} ${r} 0 0 ${outer} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${inner} ${cx} ${cy-r} Z`;
+  const uid = `moon-${++svgSequence}`;
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="${uid}"><circle cx="100" cy="100" r="90"/></clipPath>
+      ${textured ? `<filter id="texture-${uid}" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="4" seed="7" result="noise"/>
+        <feDiffuseLighting in="noise" lighting-color="#ffffff" surfaceScale="3" diffuseConstant="1.1"><feDistantLight azimuth="235" elevation="55"/></feDiffuseLighting>
+      </filter>` : ''}
+    </defs>
+    <circle cx="100" cy="100" r="90" fill="#202633"/>
+    ${k > .99999 ? '<circle cx="100" cy="100" r="90" fill="#e9dfc8"/>' : k < .00001 ? '' : `<path d="${d}" fill="#e9dfc8"/>`}
+    ${textured ? `<g clip-path="url(#${uid})"><rect width="200" height="200" filter="url(#texture-${uid})" style="mix-blend-mode:overlay;opacity:.45"/></g>` : ''}
+    <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(232,193,122,.35)" stroke-width="1"/>
   </svg>`;
 }
-
-/* ---------- Comptes à rebours ---------- */
-let nextFullDate, nextNewDate;
-
-function initCountdownTargets(){
-  const now = new Date();
-  nextFullDate = Astronomy.SearchMoonPhase(180, now, 40).date;
-  nextNewDate = Astronomy.SearchMoonPhase(0, now, 40).date;
-
-  const fmt = d => d.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'});
-  document.getElementById('cdFullDate').textContent = fmt(nextFullDate);
-  document.getElementById('cdNewDate').textContent = fmt(nextNewDate);
+function phaseNameFor(angle){
+  if (angle < 6 || angle > 354) return 'Nouvelle lune';
+  if (angle < 84) return 'Premier croissant';
+  if (angle < 96) return 'Premier quartier';
+  if (angle < 174) return 'Lune gibbeuse croissante';
+  if (angle < 186) return 'Pleine lune';
+  if (angle < 264) return 'Lune gibbeuse décroissante';
+  if (angle < 276) return 'Dernier quartier';
+  return 'Dernier croissant';
 }
-
+function lunarData(date){
+  const illumination = Astronomy.Illumination(Astronomy.Body.Moon, date);
+  const angle = Astronomy.MoonPhase(date);
+  const lastNew = Astronomy.SearchMoonPhase(0, date, -40).date;
+  return {
+    illumination: illumination.phase_fraction,
+    distance: illumination.geo_dist * KM_PER_AU,
+    age: Math.max(0, (date - lastNew) / DAY_MS),
+    waxing: angle < 180,
+    name: phaseNameFor(angle)
+  };
+}
+function buildCalendar(){
+  const year = calendarMonth.getFullYear(), month = calendarMonth.getMonth();
+  $('calMonth').textContent = `${monthNames[month]} ${year}`;
+  const offset = (calendarMonth.getDay() + 6) % 7;
+  const count = daysInMonth(year, month);
+  const today = dateKey(new Date()), selected = dateKey(selectedInstant);
+  const parts = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d => `<div class="cal-dow">${d}</div>`);
+  for (let i = 0; i < offset; i++) parts.push('<div class="cal-day empty" aria-hidden="true"></div>');
+  for (let day = 1; day <= count; day++){
+    const d = localDate(year, month, day);
+    const illum = Astronomy.Illumination(Astronomy.Body.Moon, d).phase_fraction;
+    const angle = Astronomy.MoonPhase(d);
+    const isSelected = dateKey(d) === selected;
+    parts.push(`<button type="button" class="cal-day${dateKey(d) === today ? ' today' : ''}${isSelected ? ' selected' : ''}" data-day="${day}" aria-label="${readableDate(d)}, ${Math.round(illum * 100)} % éclairée" aria-pressed="${isSelected}"${dateKey(d) === today ? ' aria-current="date"' : ''}>
+      <span class="cal-daynum">${day}</span>${moonSVG(illum, angle < 180)}
+    </button>`);
+  }
+  $('calGrid').innerHTML = parts.join('');
+}
+function syncDateControls(){
+  const year = selectedInstant.getFullYear(), month = selectedInstant.getMonth(), day = selectedInstant.getDate();
+  $('dateYear').value = year;
+  $('dateMonth').value = month;
+  $('dateDay').innerHTML = Array.from({length:daysInMonth(year, month)}, (_,i) => `<option value="${i+1}">${i+1}</option>`).join('');
+  $('dateDay').value = day;
+  $('daySlider').max = daysInMonth(year, month);
+  $('daySlider').value = day;
+  $('daySlider').setAttribute('aria-valuetext', readableDate(selectedInstant));
+  $('sliderStart').textContent = `1 ${monthNames[month].toLowerCase()}`;
+  $('sliderEnd').textContent = `${daysInMonth(year,month)} ${monthNames[month].toLowerCase()}`;
+  $('todayButton').textContent = liveMode ? 'Aujourd’hui · en direct' : 'Aujourd’hui';
+  $('calendarToday').hidden = liveMode && calendarMonth.getFullYear() === new Date().getFullYear() && calendarMonth.getMonth() === new Date().getMonth();
+}
+function updateCountdownTargets(){
+  nextFullDate = Astronomy.SearchMoonPhase(180, selectedInstant, 40).date;
+  nextNewDate = Astronomy.SearchMoonPhase(0, selectedInstant, 40).date;
+  const fmt = d => d.toLocaleString('fr-FR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  $('cdFullDate').textContent = fmt(nextFullDate);
+  $('cdNewDate').textContent = fmt(nextNewDate);
+  $('phasesTitle').textContent = liveMode ? 'Prochaines phases clés' : 'Après cette date';
+  tickCountdowns();
+}
 function formatCountdown(target){
-  const diff = target.getTime() - Date.now();
-  if (diff <= 0) return 'Maintenant';
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins = Math.floor((diff % 3600000) / 60000);
+  const diff = Math.max(0, target - (liveMode ? Date.now() : selectedInstant.getTime()));
+  const days = Math.floor(diff / DAY_MS), hours = Math.floor(diff % DAY_MS / 3600000), mins = Math.floor(diff % 3600000 / 60000);
   return `${days}<span> j</span> ${hours}<span> h</span> ${mins}<span> min</span>`;
 }
-
 function tickCountdowns(){
-  document.getElementById('cdFull').innerHTML = formatCountdown(nextFullDate);
-  document.getElementById('cdNew').innerHTML = formatCountdown(nextNewDate);
+  if (!nextFullDate || !nextNewDate) return;
+  $('cdFull').innerHTML = formatCountdown(nextFullDate);
+  $('cdNew').innerHTML = formatCountdown(nextNewDate);
+}
+function renderMoon(){
+  const data = lunarData(selectedInstant);
+  $('moonTodayVisual').innerHTML = moonSVG(data.illumination, data.waxing, true);
+  $('moonDetailVisual').innerHTML = moonSVG(data.illumination, data.waxing, true);
+  $('moonTodayPercent').textContent = `${Math.round(data.illumination * 100)}%`;
+  $('moonTodayName').textContent = data.name;
+  $('moonContext').textContent = liveMode ? 'La Lune aujourd’hui' : readableDate(selectedInstant);
+  $('detailDate').textContent = readableDate(selectedInstant);
+  $('detailPhase').textContent = data.name;
+  $('detailIllumination').textContent = `${(data.illumination * 100).toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})} %`;
+  $('detailDistance').textContent = `${Math.round(data.distance).toLocaleString('fr-FR')} km`;
+  $('detailAge').textContent = `${data.age.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})} j`;
+  $('detailMoment').textContent = liveMode ? 'En direct · heure actuelle' : 'Calcul à midi · heure locale';
+  $('moonOpen').setAttribute('aria-label',`Agrandir la Lune et choisir une date : ${readableDate(selectedInstant)}, ${Math.round(data.illumination * 100)} % éclairée`);
+  const updated = new Date();
+  $('widgetUpdated').dateTime = updated.toISOString();
+  $('widgetUpdated').textContent = updated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  syncDateControls();
+  updateCountdownTargets();
+}
+function selectDate(date, live = false){
+  if (!Number.isFinite(date.getTime()) || date.getFullYear() < 1 || date.getFullYear() > 9999) return;
+  liveMode = live;
+  selectedInstant = live ? new Date() : localDate(date.getFullYear(), date.getMonth(), date.getDate());
+  calendarMonth = localDate(selectedInstant.getFullYear(), selectedInstant.getMonth(), 1);
+  renderMoon();
+  buildCalendar();
+}
+function stepDay(delta){
+  selectDate(localDate(selectedInstant.getFullYear(),selectedInstant.getMonth(),selectedInstant.getDate()+delta));
+}
+function stepMonth(delta){
+  const next = localDate(calendarMonth.getFullYear(),calendarMonth.getMonth()+delta,1);
+  if (next.getFullYear() < 1 || next.getFullYear() > 9999) return;
+  calendarMonth = next;
+  buildCalendar();
+  syncDateControls();
+}
+function applyDateControls(){
+  const year = Number($('dateYear').value), month = Number($('dateMonth').value), day = Number($('dateDay').value);
+  if (!$('dateYear').checkValidity()) { $('dateYear').reportValidity(); return; }
+  selectDate(localDate(year,month,Math.min(day,daysInMonth(year,month))));
 }
 
-/* ---------- Calendrier du mois ---------- */
-function buildCalendar(){
-  const now = new Date();
-  const year = now.getFullYear(), month = now.getMonth();
-  const monthNames = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-  document.getElementById('calMonth').textContent = `${monthNames[month]} ${year}`;
+$('dateMonth').innerHTML = monthNames.map((name,i) => `<option value="${i}">${name}</option>`).join('');
+$('calGrid').addEventListener('click', event => {
+  const button = event.target.closest('[data-day]');
+  if (!button) return;
+  const day = Number(button.dataset.day);
+  selectDate(localDate(calendarMonth.getFullYear(),calendarMonth.getMonth(),day));
+  $('calGrid').querySelector(`[data-day="${day}"]`)?.focus({preventScroll:true});
+});
+$('previousMonth').addEventListener('click',()=>stepMonth(-1));
+$('nextMonth').addEventListener('click',()=>stepMonth(1));
+$('calendarToday').addEventListener('click',()=>selectDate(new Date(),true));
+$('todayButton').addEventListener('click',()=>selectDate(new Date(),true));
+$('previousDay').addEventListener('click',()=>stepDay(-1));
+$('nextDay').addEventListener('click',()=>stepDay(1));
+$('dateForm').addEventListener('submit',event=>{event.preventDefault();applyDateControls();});
+['dateDay','dateMonth','dateYear'].forEach(id=>$(id).addEventListener('change',applyDateControls));
+$('daySlider').addEventListener('input',event=>selectDate(localDate(selectedInstant.getFullYear(),selectedInstant.getMonth(),Number(event.target.value))));
 
-  const dows = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
-
-  const firstDay = new Date(year, month, 1);
-  const startOffset = (firstDay.getDay() + 6) % 7; // lundi = 0
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const todayNum = now.getDate();
-
-  for (let i = 0; i < startOffset; i++){
-    grid.insertAdjacentHTML('beforeend', `<div class="cal-day empty"></div>`);
-  }
-  for (let day = 1; day <= daysInMonth; day++){
-    const d = new Date(year, month, day, 12, 0, 0);
-    const angle = Astronomy.MoonPhase(d);
-    const phaseFraction = angle / 360;
-    const isToday = day === todayNum;
-    grid.insertAdjacentHTML('beforeend',
-      `<div class="cal-day${isToday ? ' today' : ''}">
-         <span class="cal-daynum">${day}</span>
-         ${moonIconSVG(phaseFraction)}
-       </div>`);
-  }
-}
-
-/* ---------- Grande lune du jour, texturée (cratères) ---------- */
-function bigMoonSVG(phaseFraction){
-  const r = 90, cx = 100, cy = 100;
-  const theta = phaseFraction * 2 * Math.PI;
-  const rx = Math.abs(r * Math.cos(theta));
-  const sweepOuter = phaseFraction < 0.5 ? 1 : 0;
-  const sweepInner = (phaseFraction < 0.25 || phaseFraction > 0.75) ? (1 - sweepOuter) : sweepOuter;
-  const d = `M ${cx} ${cy-r} A ${r} ${r} 0 0 ${sweepOuter} ${cx} ${cy+r} A ${rx} ${r} 0 0 ${sweepInner} ${cx} ${cy-r} Z`;
-  const uid = Math.random().toString(36).slice(2);
-  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <clipPath id="dc-${uid}"><circle cx="100" cy="100" r="${r}"/></clipPath>
-      <filter id="cf-${uid}" x="-10%" y="-10%" width="120%" height="120%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" seed="7" result="noise"/>
-        <feDiffuseLighting in="noise" lighting-color="#ffffff" surfaceScale="3" diffuseConstant="1.1" result="light">
-          <feDistantLight azimuth="235" elevation="55"/>
-        </feDiffuseLighting>
-      </filter>
-      <radialGradient id="glow-${uid}" cx="50%" cy="50%" r="60%">
-        <stop offset="0%" stop-color="#3a3f5c" stop-opacity="0.4"/>
-        <stop offset="100%" stop-color="#3a3f5c" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-    <circle cx="100" cy="100" r="98" fill="url(#glow-${uid})"/>
-    <circle cx="100" cy="100" r="${r}" fill="#1b1f38"/>
-    <path d="${d}" fill="#e8c17a" clip-path="url(#dc-${uid})"/>
-    <g clip-path="url(#dc-${uid})">
-      <rect x="0" y="0" width="200" height="200" filter="url(#cf-${uid})" style="mix-blend-mode:overlay;opacity:0.45"/>
-    </g>
-    <circle cx="100" cy="100" r="${r}" fill="none" stroke="rgba(232,193,122,0.4)" stroke-width="1.5"/>
-  </svg>`;
-}
-
-function phaseNameFor(angle){
-  if (angle < 6 || angle > 354) return "Nouvelle lune";
-  if (angle < 84) return "Premier croissant";
-  if (angle < 96) return "Premier quartier";
-  if (angle < 174) return "Lune gibbeuse croissante";
-  if (angle < 186) return "Pleine lune";
-  if (angle < 264) return "Lune gibbeuse décroissante";
-  if (angle < 276) return "Dernier quartier";
-  return "Dernier croissant";
-}
-
-function buildMoonToday(){
-  const now = new Date();
-  const angle = Astronomy.MoonPhase(now);
-  const illum = Astronomy.Illumination(Astronomy.Body.Moon, now);
-  document.getElementById('moonTodayVisual').innerHTML = bigMoonSVG(angle / 360);
-  document.getElementById('moonTodayPercent').textContent = `${(illum.phase_fraction*100).toFixed(0)}%`;
-  document.getElementById('moonTodayName').textContent = phaseNameFor(angle);
-}
-
-initCountdownTargets();
-tickCountdowns();
-setInterval(tickCountdowns, 1000);
+const moonDialog = $('moonDialog');
+$('moonOpen').addEventListener('click',()=>moonDialog.showModal());
+$('moonClose').addEventListener('click',()=>moonDialog.close());
+moonDialog.addEventListener('click',event=>{
+  if (event.target !== moonDialog) return;
+  const r = moonDialog.getBoundingClientRect();
+  if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) moonDialog.close();
+});
+let swipeStart = null;
+$('moonDetailVisual').addEventListener('pointerdown',event=>{
+  if (event.button !== 0) return;
+  swipeStart={x:event.clientX,y:event.clientY};
+  event.currentTarget.setPointerCapture(event.pointerId);
+});
+$('moonDetailVisual').addEventListener('pointerup',event=>{
+  if (!swipeStart) return;
+  const dx = event.clientX-swipeStart.x, dy=event.clientY-swipeStart.y;
+  swipeStart=null;
+  if (Math.abs(dx)>35 && Math.abs(dx)>Math.abs(dy)) stepDay(dx<0 ? 1 : -1);
+});
+$('moonDetailVisual').addEventListener('pointercancel',()=>{swipeStart=null;});
+renderMoon();
 buildCalendar();
-buildMoonToday();
-</script>
+setInterval(()=>{
+  if (liveMode && !$('dateForm').contains(document.activeElement)){
+    const oldDay = dateKey(selectedInstant);
+    selectedInstant = new Date();
+    renderMoon();
+    if (oldDay !== dateKey(selectedInstant)){
+      calendarMonth = localDate(selectedInstant.getFullYear(),selectedInstant.getMonth(),1);
+      buildCalendar();
+    }
+  }
+},60000);
+setInterval(tickCountdowns,1000);
 
-<script>
-const widgetCalculatedAt = new Date();
-const widgetUpdated = document.getElementById('widgetUpdated');
-widgetUpdated.dateTime = widgetCalculatedAt.toISOString();
-widgetUpdated.textContent = widgetCalculatedAt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
 </script>
 </body>
 </html>
