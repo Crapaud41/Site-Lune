@@ -1,4 +1,4 @@
-/* Murphy : poses mises en mémoire, lecture légère et bref regard au croâ. */
+/* Murphy : bas des pattes étoffé, attaches sous le pelage et lecture légère. */
 (function(){
   "use strict";
   if(window.__crapaudEgg)return;
@@ -130,6 +130,10 @@ function anatomicalKeys(leg,phase){
 
 // Les déformations sont préparées au repos. La marche ne déplace ensuite que trois images.
 var murphyFrames=null,murphyFrameCount=32,murphyRasterScale=1.5;
+function murphyLowerLegScale(v,type){
+  var knee=type==='front'?.60:.56;
+  return 1+.42*softStep(knee,knee+.16,v)-.07*softStep(.90,1,v);
+}
 function murphySurface(width,height){
   var canvas=document.createElement('canvas');canvas.width=Math.round(width);canvas.height=Math.round(height);
   return canvas;
@@ -179,7 +183,7 @@ function murphyRasterLeg(ctx,leg,phase,art){
     var upright=softStep(.55,.84,v),nx=dy/length*(1-upright)+upright,ny=-dx/length*(1-upright);
     var sample=Math.min(17,v*20),index=Math.floor(sample),mix=sample-index;
     var sourceCenter=centers[index]*(1-mix)+centers[Math.min(20,index+1)]*mix;
-    var across=(source.x/100-sourceCenter)*(leg.type==='front'?46:52)*(leg.far?.93:1);
+    var across=(source.x/100-sourceCenter)*(leg.type==='front'?46:52)*(leg.far?.93:1)*murphyLowerLegScale(v,leg.type);
     var x=center.x+nx*across,y=center.y+ny*across;
     var distal=softStep(.84,1,v),pivotX=pose.foot.x-7,pivotY=pose.foot.y;
     var rx=x-pivotX,ry=(y-pivotY)*(1-.07*load*distal),angle=roll*distal;
@@ -198,14 +202,14 @@ function murphyRasterFrame(index,art){
   b.strokeStyle=b.createPattern(art.texture,'repeat');b.lineWidth=25;b.lineCap='round';b.beginPath();b.moveTo(root.x,root.y);
   b.bezierCurveTo(279,90+lift,301,108+tip+lift*.5,326,80+tip+lift*.3);b.stroke();
   var legs=[{type:'hind',base:239,offset:.5,far:true},{type:'front',base:107,offset:.25,far:true},{type:'hind',base:239,offset:0,far:false},{type:'front',base:103,offset:.75,far:false}];
-  legs.filter(function(l){return l.far;}).forEach(function(l){murphyRasterLeg(b,l,phase,art.limbs[l.type]);});
+  // Les quatre membres passent sous le pelage : le torse cache leurs attaches.
+  legs.forEach(function(l){murphyRasterLeg(b,l,phase,art.limbs[l.type]);});
   var neck=anatomyPose(101,98,phase);
   b.save();b.translate((neck.x-101)*.5,(neck.y-98)*.6);b.beginPath();b.moveTo(114,68);b.bezierCurveTo(126,56,146,58,158,72);b.lineTo(157,110);b.bezierCurveTo(141,119,121,114,113,103);b.closePath();b.clip();
   b.drawImage(murphyImages[bodyImage],180/320*murphyImages[bodyImage].width,75/140*murphyImages[bodyImage].height,45/320*murphyImages[bodyImage].width,50/140*murphyImages[bodyImage].height,112,57,48,60);b.restore();
   anatomicalBodyCells.forEach(function(cell){var x=cell[0],y=cell[1];
     [[{x:x,y:y},{x:x+20,y:y},{x:x+20,y:y+20}],[{x:x,y:y},{x:x+20,y:y+20},{x:x,y:y+20}]].forEach(function(source){murphyTriangle(b,art.body,source,source.map(function(v){return anatomyPose(v.x,v.y,phase);}));});
   });
-  legs.filter(function(l){return !l.far;}).forEach(function(l){murphyRasterLeg(n,l,phase,art.limbs[l.type]);});
   return {base:base,front:front,phase:phase,neck:neck};
 }
 function prepareMurphyFrames(){
