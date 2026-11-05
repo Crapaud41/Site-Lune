@@ -1,4 +1,4 @@
-/* Murphy : appuis progressifs, regard dans le sens de la marche et bref regard au croâ. */
+/* Murphy : poses mises en mémoire, lecture légère et bref regard au croâ. */
 (function(){
   "use strict";
   if(window.__crapaudEgg)return;
@@ -10,7 +10,7 @@
   var css=document.createElement('style');
   css.textContent=[
     '.cx-wrap{position:fixed;left:0;bottom:1.5vh;z-index:2147483000;pointer-events:none;width:var(--cx-w);height:calc(var(--cx-w) * 190 / 360);will-change:transform}',
-    '.cx-wrap svg{display:block;width:100%;height:100%;overflow:visible}',
+    '.cx-wrap canvas{display:block;width:100%;height:100%;overflow:visible}',
     '.cx-say{position:absolute;left:48%;top:0;opacity:0;transform:translate(-50%,-100%);transition:opacity .2s;white-space:nowrap;',
     "font:italic 600 clamp(14px,2.2vmin,22px)/1 'Cormorant Garamond',Georgia,serif;color:#f0d9a8;",
     'background:rgba(6,8,20,.88);border:1px solid rgba(232,193,122,.4);padding:.35em .75em;border-radius:999px}',
@@ -20,8 +20,9 @@
   document.head.appendChild(css);
 
 
-  function loadImage(src){return new Promise(function(resolve){var img=new Image();img.onload=function(){resolve(true);};img.onerror=function(){resolve(false);};img.src=src;});}
-  var ready=Promise.all([bodyImage,anatomyAssets.front.image,anatomyAssets.hind.image].concat(headImages).map(loadImage)).then(function(results){return results.every(Boolean);});
+  var murphyImages=Object.create(null);
+  function loadImage(src){return new Promise(function(resolve){var img=new Image();img.onload=function(){murphyImages[src]=img;resolve(true);};img.onerror=function(){resolve(false);};img.src=src;});}
+  var ready=Promise.all([bodyImage,anatomyAssets.front.image,anatomyAssets.hind.image].concat(headImages).map(loadImage)).then(function(results){return results.every(Boolean)?prepareMurphyFrames():false;});
   var running=false,stop=null,sequence=0;
   function softStep(a,b,value){var t=Math.max(0,Math.min(1,(value-a)/(b-a)));return t*t*(3-2*t);}
   var NS='http://www.w3.org/2000/svg';
@@ -126,100 +127,120 @@ function anatomicalKeys(leg,phase){
   }
   return {keys:keys,foot:p};
 }
-function createAnatomicalMurphy(el){
-  var id='murphy-anatomy-'+(++sequence),svg=svgNode('svg',{viewBox:'0 0 360 190','aria-hidden':'true'},el);
-  var defs=svgNode('defs',{},svg);
-  var eraseBlur=svgNode('filter',{id:id+'-head-cut-blur',x:'-20%',y:'-20%',width:'140%',height:'140%'},defs);
-  svgNode('feGaussianBlur',{stdDeviation:2.5},eraseBlur);
-  var bodyMask=svgNode('mask',{id:id+'-without-old-head',maskUnits:'userSpaceOnUse',maskContentUnits:'userSpaceOnUse',x:0,y:0,width:320,height:140},defs);
-  svgNode('rect',{width:320,height:140,fill:'white'},bodyMask);
-  svgNode('rect',{x:-10,y:-12,width:132,height:129,fill:'black',filter:'url(#'+id+'-head-cut-blur)'},bodyMask);
-  svgNode('rect',{x:108,y:-12,width:32,height:90,fill:'black',filter:'url(#'+id+'-head-cut-blur)'},bodyMask);
-  svgNode('rect',{x:139,y:0,width:100,height:80,fill:'white'},bodyMask);
-  var bodyArtwork=svgNode('g',{id:id+'-body',mask:'url(#'+id+'-without-old-head)'},defs);
-  svgNode('image',{href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},bodyArtwork);
-  var headBlend=svgNode('filter',{id:id+'-head-blend',filterUnits:'userSpaceOnUse',x:25,y:-1,width:126,height:132,'color-interpolation-filters':'sRGB'},defs);
-  var headA=svgNode('feImage',{href:headImages[0],x:25,y:-1,width:126,height:132,preserveAspectRatio:'none',result:'headA'},headBlend);
-  var headB=svgNode('feImage',{href:headImages[1],x:25,y:-1,width:126,height:132,preserveAspectRatio:'none',result:'headB'},headBlend);
-  var headMix=svgNode('feComposite',{in:'headA',in2:'headB',operator:'arithmetic',k1:0,k2:1,k3:0,k4:0},headBlend);
-  var fade=svgNode('linearGradient',{id:id+'-join-gradient',gradientUnits:'userSpaceOnUse',x1:0,y1:0,x2:0,y2:134},defs);
-  svgNode('stop',{offset:0,'stop-color':'white','stop-opacity':0},fade);
-  svgNode('stop',{offset:'.60','stop-color':'white','stop-opacity':'.65'},fade);
-  svgNode('stop',{offset:1,'stop-color':'white','stop-opacity':1},fade);
-  var mask=svgNode('mask',{id:id+'-join',maskUnits:'userSpaceOnUse',maskContentUnits:'userSpaceOnUse',x:0,y:0,width:100,height:320},defs);
-  svgNode('rect',{width:100,height:320,fill:'url(#'+id+'-join-gradient)'},mask);
+
+// Les déformations sont préparées au repos. La marche ne déplace ensuite que trois images.
+var murphyFrames=null,murphyFrameCount=32,murphyRasterScale=1.5;
+function murphySurface(width,height){
+  var canvas=document.createElement('canvas');canvas.width=Math.round(width);canvas.height=Math.round(height);
+  return canvas;
+}
+function murphyTriangle(ctx,art,source,points){
+  var a=source[0],b=source[1],c=source[2],p=points[0],q=points[1],r=points[2];
+  var det=(b.x-a.x)*(c.y-a.y)-(c.x-a.x)*(b.y-a.y);
+  var a11=((q.x-p.x)*(c.y-a.y)-(r.x-p.x)*(b.y-a.y))/det;
+  var a12=((q.y-p.y)*(c.y-a.y)-(r.y-p.y)*(b.y-a.y))/det;
+  var a21=((r.x-p.x)*(b.x-a.x)-(q.x-p.x)*(c.x-a.x))/det;
+  var a22=((r.y-p.y)*(b.x-a.x)-(q.y-p.y)*(c.x-a.x))/det;
+  var tx=p.x-a11*a.x-a21*a.y,ty=p.y-a12*a.x-a22*a.y;
+  var cx=(p.x+q.x+r.x)/3,cy=(p.y+q.y+r.y)/3;
+  ctx.save();ctx.beginPath();
+  points.forEach(function(v,i){var x=cx+(v.x-cx)*1.08,y=cy+(v.y-cy)*1.08;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});
+  ctx.closePath();ctx.clip();ctx.transform(a11,a12,a21,a22,tx,ty);ctx.drawImage(art,0,0);ctx.restore();
+}
+function murphyArtwork(){
+  var torso=murphySurface(320,140),ctx=torso.getContext('2d');
+  ctx.drawImage(murphyImages[bodyImage],0,0,320,140);
+  var mask=murphySurface(320,140),m=mask.getContext('2d');
+  m.fillStyle='white';m.fillRect(0,0,320,140);
+  m.globalCompositeOperation='destination-out';m.filter='blur(2.5px)';
+  m.fillRect(-10,-12,132,129);m.fillRect(108,-12,32,90);
+  m.filter='none';m.globalCompositeOperation='source-over';m.fillRect(139,0,100,80);
+  ctx.globalCompositeOperation='destination-in';ctx.drawImage(mask,0,0);
+  var limbs={};
   ['front','hind'].forEach(function(type){
-    var artwork=svgNode('g',{id:id+'-'+type,mask:'url(#'+id+'-join)'},defs);
-    svgNode('image',{href:anatomyAssets[type].image,x:0,y:0,width:100,height:320,preserveAspectRatio:'none'},artwork);
+    var image=murphySurface(100,320),c=image.getContext('2d');c.drawImage(murphyImages[anatomyAssets[type].image],0,0,100,320);
+    var fade=c.createLinearGradient(0,0,0,134);fade.addColorStop(0,'rgba(255,255,255,0)');
+    fade.addColorStop(.60,'rgba(255,255,255,.65)');fade.addColorStop(1,'white');
+    c.globalCompositeOperation='destination-in';c.fillStyle=fade;c.fillRect(0,0,100,320);limbs[type]=image;
   });
-  var tailTexture=svgNode('pattern',{id:id+'-tail-texture',patternUnits:'userSpaceOnUse',width:84,height:84},defs);
-  svgNode('rect',{width:84,height:84,fill:'#292425'},tailTexture);
-  ['', 'translate(84 0) scale(-1 1)', 'translate(0 84) scale(1 -1)', 'translate(84 84) scale(-1 -1)'].forEach(function(transform){
-    var patch=svgNode('svg',{x:0,y:0,width:42,height:42,viewBox:'175 60 42 42',overflow:'hidden'},svgNode('g',transform?{transform:transform}:{},tailTexture));
-    svgNode('image',{href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},patch);
+  var texture=murphySurface(84,84),t=texture.getContext('2d');
+  t.fillStyle='#292425';t.fillRect(0,0,84,84);
+  [[0,0,1,1],[84,0,-1,1],[0,84,1,-1],[84,84,-1,-1]].forEach(function(v){
+    t.save();t.translate(v[0],v[1]);t.scale(v[2],v[3]);t.drawImage(murphyImages[bodyImage],175/320*murphyImages[bodyImage].width,60/140*murphyImages[bodyImage].height,42/320*murphyImages[bodyImage].width,42/140*murphyImages[bodyImage].height,0,0,42,42);t.restore();
   });
-  var tail=svgNode('path',{fill:'none',stroke:'url(#'+id+'-tail-texture)','stroke-width':25,'stroke-linecap':'round'},svg);
-  var far=svgNode('g',{'data-layer':'far'},svg),body=svgNode('g',{'data-layer':'torso'},svg),near=svgNode('g',{'data-layer':'near'},svg);
-  var neckClip=svgNode('clipPath',{id:id+'-neck-bridge',clipPathUnits:'userSpaceOnUse'},defs);
-  svgNode('path',{d:'M114 68 C126 56 146 58 158 72 L157 110 C141 119 121 114 113 103 Z'},neckClip);
-  var neckBridge=svgNode('g',{'clip-path':'url(#'+id+'-neck-bridge)'},body);
-  var neckPatch=svgNode('svg',{x:112,y:57,width:48,height:60,viewBox:'180 75 45 50',preserveAspectRatio:'none',overflow:'hidden'},neckBridge);
-  svgNode('image',{href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},neckPatch);
-  function piece(source,artwork,parent,label){
-    var cid=id+'-'+label,clip=svgNode('path',{},svgNode('clipPath',{id:cid,clipPathUnits:'userSpaceOnUse'},defs));
-    var g=svgNode('g',{'clip-path':'url(#'+cid+')'},parent),image=svgNode('use',{href:'#'+artwork},g);
-    return {source:source,clip:clip,image:image};
+  return {body:torso,limbs:limbs,texture:texture};
+}
+function murphyRasterLeg(ctx,leg,phase,art){
+  var pose=anatomicalKeys(leg,phase),centers=anatomyAssets[leg.type].centers;
+  var roll=pawRoll(phase+leg.offset),load=supportAt(phase+leg.offset);
+  function map(source){
+    var v=source.y/320,center=limbCurve(pose.keys,v),before=limbCurve(pose.keys,Math.max(0,v-.005)),after=limbCurve(pose.keys,Math.min(1,v+.005));
+    var dx=after.x-before.x,dy=after.y-before.y,length=Math.max(.001,Math.hypot(dx,dy));
+    var upright=softStep(.55,.84,v),nx=dy/length*(1-upright)+upright,ny=-dx/length*(1-upright);
+    var sample=Math.min(17,v*20),index=Math.floor(sample),mix=sample-index;
+    var sourceCenter=centers[index]*(1-mix)+centers[Math.min(20,index+1)]*mix;
+    var across=(source.x/100-sourceCenter)*(leg.type==='front'?46:52)*(leg.far?.93:1);
+    var x=center.x+nx*across,y=center.y+ny*across;
+    var distal=softStep(.84,1,v),pivotX=pose.foot.x-7,pivotY=pose.foot.y;
+    var rx=x-pivotX,ry=(y-pivotY)*(1-.07*load*distal),angle=roll*distal;
+    return {x:pivotX+rx*Math.cos(angle)-ry*Math.sin(angle),y:pivotY+rx*Math.sin(angle)+ry*Math.cos(angle)};
   }
-  var bodyPieces=[];
-  anatomicalBodyCells.forEach(function(cell,index){
-    var x=cell[0],y=cell[1];
-    [[{x:x,y:y},{x:x+20,y:y},{x:x+20,y:y+20}],[{x:x,y:y},{x:x+20,y:y+20},{x:x,y:y+20}]].forEach(function(source,half){bodyPieces.push(piece(source,id+'-body',body,'body-'+index+'-'+half));});
+  for(var row=0;row<40;row++){
+    var y=row*8;
+    [[{x:0,y:y},{x:100,y:y},{x:100,y:y+8}],[{x:0,y:y},{x:100,y:y+8},{x:0,y:y+8}]].forEach(function(source){murphyTriangle(ctx,art,source,source.map(map));});
+  }
+}
+function murphyRasterFrame(index,art){
+  var phase=index/murphyFrameCount,scale=murphyRasterScale;
+  var base=murphySurface(360*scale,190*scale),front=murphySurface(360*scale,190*scale);
+  var b=base.getContext('2d'),n=front.getContext('2d');b.scale(scale,scale);n.scale(scale,scale);
+  var root=anatomyPose(251,94,phase),tip=5*Math.sin(phase*Math.PI*2-.45),lift=root.y-94;
+  b.strokeStyle=b.createPattern(art.texture,'repeat');b.lineWidth=25;b.lineCap='round';b.beginPath();b.moveTo(root.x,root.y);
+  b.bezierCurveTo(279,90+lift,301,108+tip+lift*.5,326,80+tip+lift*.3);b.stroke();
+  var legs=[{type:'hind',base:239,offset:.5,far:true},{type:'front',base:107,offset:.25,far:true},{type:'hind',base:239,offset:0,far:false},{type:'front',base:103,offset:.75,far:false}];
+  legs.filter(function(l){return l.far;}).forEach(function(l){murphyRasterLeg(b,l,phase,art.limbs[l.type]);});
+  var neck=anatomyPose(101,98,phase);
+  b.save();b.translate((neck.x-101)*.5,(neck.y-98)*.6);b.beginPath();b.moveTo(114,68);b.bezierCurveTo(126,56,146,58,158,72);b.lineTo(157,110);b.bezierCurveTo(141,119,121,114,113,103);b.closePath();b.clip();
+  b.drawImage(murphyImages[bodyImage],180/320*murphyImages[bodyImage].width,75/140*murphyImages[bodyImage].height,45/320*murphyImages[bodyImage].width,50/140*murphyImages[bodyImage].height,112,57,48,60);b.restore();
+  anatomicalBodyCells.forEach(function(cell){var x=cell[0],y=cell[1];
+    [[{x:x,y:y},{x:x+20,y:y},{x:x+20,y:y+20}],[{x:x,y:y},{x:x+20,y:y+20},{x:x,y:y+20}]].forEach(function(source){murphyTriangle(b,art.body,source,source.map(function(v){return anatomyPose(v.x,v.y,phase);}));});
   });
-  var head=svgNode('g',{'data-head-facing':'forward'},body);
-  svgNode('rect',{x:25,y:-1,width:126,height:132,fill:'none',filter:'url(#'+id+'-head-blend)'},head);
-  var lastHeadA=-1,lastHeadB=-1;
-  var legs=[{type:'hind',base:239,offset:.50,far:true},{type:'front',base:107,offset:.25,far:true},{type:'hind',base:239,offset:0,far:false},{type:'front',base:103,offset:.75,far:false}];
-  legs.forEach(function(leg,index){
-    leg.group=svgNode('g',{'data-anatomy-leg':leg.type+(leg.far?'-far':'-near')},leg.far?far:near);leg.pieces=[];
-    for(var row=0;row<40;row++){
-      var y=row*8;
-      [[{x:0,y:y},{x:100,y:y},{x:100,y:y+8}],[{x:0,y:y},{x:100,y:y+8},{x:0,y:y+8}]].forEach(function(source,half){leg.pieces.push(piece(source,id+'-'+leg.type,leg.group,'limb-'+index+'-'+row+'-'+half));});
+  legs.filter(function(l){return !l.far;}).forEach(function(l){murphyRasterLeg(n,l,phase,art.limbs[l.type]);});
+  return {base:base,front:front,phase:phase,neck:neck};
+}
+function prepareMurphyFrames(){
+  return new Promise(function(resolve){
+    var art=murphyArtwork(),frames=[];
+    function batch(){
+      var began=performance.now();
+      do{frames.push(murphyRasterFrame(frames.length,art));}while(frames.length<murphyFrameCount&&performance.now()-began<6);
+      if(frames.length===murphyFrameCount){murphyFrames=frames;resolve(true);return;}
+      schedule();
     }
+    function schedule(){if('requestIdleCallback' in window)requestIdleCallback(batch,{timeout:200});else setTimeout(batch,16);}
+    schedule();
   });
+}
+function createAnatomicalMurphy(el){
+  var canvas=murphySurface(360*murphyRasterScale,190*murphyRasterScale),ctx=canvas.getContext('2d');
+  canvas.setAttribute('aria-hidden','true');canvas.setAttribute('data-renderer','cached-canvas');el.appendChild(canvas);
+  var blend=murphySurface(180,180),blendCtx=blend.getContext('2d');
   return function draw(phase,look){
+    var index=Math.round((((phase%1)+1)%1)*murphyFrameCount)%murphyFrameCount,frame=murphyFrames[index];
+    ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(frame.base,0,0);
     look=Math.max(0,Math.min(1,look||0));
-    var yaw=look*(headImages.length-1),first=Math.floor(yaw),second=Math.min(headImages.length-1,first+1),mix=yaw-first;
-    if(first!==lastHeadA){headA.setAttribute('href',headImages[first]);lastHeadA=first;}
-    if(second!==lastHeadB){headB.setAttribute('href',headImages[second]);lastHeadB=second;}
-    headMix.setAttribute('k2',(1-mix).toFixed(4));headMix.setAttribute('k3',mix.toFixed(4));
-    var neck=anatomyPose(101,98,phase),headNod=.7*Math.sin(phase*Math.PI*2-.3);
-    neckBridge.setAttribute('transform','translate('+((neck.x-101)*.5).toFixed(3)+' '+((neck.y-98)*.6).toFixed(3)+')');
-    head.setAttribute('transform','translate('+((neck.x-101)*.6).toFixed(3)+' '+((neck.y-98)*.55).toFixed(3)+') rotate('+headNod.toFixed(3)+' 101 98)');
-    head.setAttribute('data-head-facing',look>.99?'viewer':look<.01?'forward':'turning');
-    bodyPieces.forEach(function(p){paintTriangle(p,p.source.map(function(v){return anatomyPose(v.x,v.y,phase);}));});
-    var root=anatomyPose(251,94,phase),tip=5*Math.sin(phase*Math.PI*2-.45),lift=root.y-94;
-    tail.setAttribute('d','M'+root.x+' '+root.y+' C279 '+(90+lift)+' 301 '+(108+tip+lift*.5)+' 326 '+(80+tip+lift*.3));
-    legs.forEach(function(leg){
-      var pose=anatomicalKeys(leg,phase),centers=anatomyAssets[leg.type].centers;
-      var roll=pawRoll(phase+leg.offset),load=supportAt(phase+leg.offset);
-      function map(source){
-        var v=source.y/320,center=limbCurve(pose.keys,v),before=limbCurve(pose.keys,Math.max(0,v-.005)),after=limbCurve(pose.keys,Math.min(1,v+.005));
-        var dx=after.x-before.x,dy=after.y-before.y,length=Math.max(.001,Math.hypot(dx,dy));
-        var upright=softStep(.55,.84,v),nx=dy/length*(1-upright)+upright,ny=-dx/length*(1-upright);
-        var sample=Math.min(17,v*20),index=Math.floor(sample),mix=sample-index;
-        var sourceCenter=centers[index]*(1-mix)+centers[Math.min(20,index+1)]*mix;
-        var across=(source.x/100-sourceCenter)*(leg.type==='front'?46:52)*(leg.far?.93:1);
-        var x=center.x+nx*across,y=center.y+ny*across;
-        var distal=softStep(.84,1,v),pivotX=pose.foot.x-7,pivotY=pose.foot.y;
-        var rx=x-pivotX,ry=(y-pivotY)*(1-.07*load*distal);
-        var angle=roll*distal;
-        return {x:pivotX+rx*Math.cos(angle)-ry*Math.sin(angle),y:pivotY+rx*Math.sin(angle)+ry*Math.cos(angle)};
-      }
-      leg.pieces.forEach(function(p){paintTriangle(p,p.source.map(map));});
-      leg.group.setAttribute('data-grounded',String(pose.foot.planted));
-    });
+    var yaw=look*(headImages.length-1),a=Math.floor(yaw),b=Math.min(headImages.length-1,a+1),mix=yaw-a,head=murphyImages[headImages[a]];
+    if(mix>.001){
+      blendCtx.clearRect(0,0,180,180);blendCtx.globalCompositeOperation='source-over';blendCtx.globalAlpha=1-mix;blendCtx.drawImage(head,0,0,180,180);
+      blendCtx.globalCompositeOperation='lighter';blendCtx.globalAlpha=mix;blendCtx.drawImage(murphyImages[headImages[b]],0,0,180,180);blendCtx.globalAlpha=1;head=blend;
+    }
+    ctx.save();ctx.scale(murphyRasterScale,murphyRasterScale);ctx.translate((frame.neck.x-101)*.6,(frame.neck.y-98)*.55);
+    ctx.translate(101,98);ctx.rotate(.7*Math.sin(frame.phase*Math.PI*2-.3)*Math.PI/180);ctx.translate(-101,-98);ctx.drawImage(head,25,-1,126,132);ctx.restore();
+    ctx.drawImage(frame.front,0,0);
+    canvas.setAttribute('data-head-facing',look>.99?'viewer':look<.01?'forward':'turning');
   };
 }
+
 
   async function start(){
     if(running)return;
