@@ -1,4 +1,4 @@
-/* Murphy : pattes peintes déformées avec les appuis, traversée plus vive.
+/* Murphy : marche coordonnée, volumes du corps et pelage souple.
    Le portrait peint est inspiré de la photo du propriétaire. */
 (function () {
   'use strict';
@@ -27,6 +27,37 @@ function kneeAt(hip, ankle, bend) {
   var a=Math.max(-upper,Math.min(upper,(upper*upper-lower*lower+distance*distance)/(2*distance)));
   var h=Math.sqrt(Math.max(0,upper*upper-a*a));
   return {x:hip.x+a*dx/distance+bend*h*dy/distance,y:hip.y+a*dy/distance-bend*h*dx/distance};
+}
+
+  // Le même cycle pilote les appuis, les épaules, les hanches et le poil.
+function softStep(a,b,value){var t=Math.max(0,Math.min(1,(value-a)/(b-a)));return t*t*(3-2*t);}
+function bodyAt(x,y,phase){
+  var theta=phase*Math.PI*2;
+  var along=softStep(100,234,x);
+  var shoulder=1.8*Math.sin(theta+.2)+.75*Math.cos(theta*2);
+  var pelvis=-1.3*Math.sin(theta+.2)+.75*Math.cos(theta*2+.5);
+  var baseX=.6*Math.sin(theta)*(1-2*along);
+  var baseY=.6*Math.cos(theta*2)+shoulder*(1-along)+pelvis*along;
+  var px=x+baseX,py=y+baseY;
+  // La tête reste un volume rigide ; le raccord se fond dans la collerette.
+  var head=(1-softStep(118,146,x))*(1-softStep(74,108,y));
+  var headAngle=.028*Math.sin(theta-.35),hx=x-105,hy=y-88;
+  var headX=105+hx*Math.cos(headAngle)-hy*Math.sin(headAngle)+.6*Math.sin(theta-.3);
+  var headY=88+hx*Math.sin(headAngle)+hy*Math.cos(headAngle)+1.2*Math.sin(theta-.1)+.7*Math.cos(theta*2);
+  px=px*(1-head)+headX*head;py=py*(1-head)+headY*head;
+  // Le passager accompagne le dos avec un décalage souple et léger.
+  var passenger=softStep(133,147,x)*(1-softStep(198,213,x))*(1-softStep(52,68,y));
+  var passengerAngle=.021*Math.sin(theta-.55),tx=x-175,ty=y-62;
+  var passengerX=175+tx*Math.cos(passengerAngle)-ty*Math.sin(passengerAngle)+baseX;
+  var passengerY=62+tx*Math.sin(passengerAngle)+ty*Math.cos(passengerAngle)+baseY+.65*Math.sin(theta*2-.45);
+  px=px*(1-passenger)+passengerX*passenger;py=py*(1-passenger)+passengerY*passenger;
+  // Les mèches suivent le mouvement avec du retard, sans toucher au visage.
+  var mane=Math.exp(-Math.pow((x-90)/43,2))*softStep(74,116,y);
+  var belly=softStep(112,142,x)*(1-softStep(250,278,x))*softStep(94,127,y);
+  var flank=softStep(218,270,x)*softStep(63,99,y)*(1-softStep(125,140,y));
+  px+=mane*.9*Math.sin(theta-.45-y*.025)+belly*.8*Math.sin(theta-.6-x*.017)+flank*.55*Math.sin(theta-.7-y*.02);
+  py+=mane*.6*Math.sin(theta*2-.6)+belly*.6*Math.cos(theta-.8-x*.012);
+  return {x:px,y:py};
 }
 
   var css=document.createElement('style');
@@ -80,6 +111,7 @@ function kneeAt(hip, ankle, bend) {
       svgNode('image',{href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},patch);
     });
     svgNode('image',{id:id+'-painted-leg',href:legImage,x:0,y:0,width:100,height:320,preserveAspectRatio:'none'},defs);
+    svgNode('image',{id:id+'-painted-body',href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},defs);
     var tail=svgNode('g',{},svg);
     var tailLine=svgNode('path',{fill:'none',stroke:'url(#'+id+'-fur)','stroke-width':25,'stroke-linecap':'round'},tail);
     var tailFur=svgNode('path',{fill:'none',stroke:'url(#'+id+'-texture)','stroke-width':24,'stroke-linecap':'round'},tail);
@@ -104,17 +136,27 @@ function kneeAt(hip, ankle, bend) {
         });
       }
     });
-    var body=svgNode('image',{href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},svg);
+    var body=svgNode('g',{'data-body-motion':'coordinated'},svg),bodyPieces=[];
+    var bodyCells=[[60,0],[80,0],[100,0],[120,0],[40,20],[60,20],[80,20],[100,20],[120,20],[140,20],[160,20],[180,20],[40,40],[60,40],[80,40],[100,40],[120,40],[140,40],[160,40],[180,40],[200,40],[220,40],[240,40],[40,60],[60,60],[80,60],[100,60],[120,60],[140,60],[160,60],[180,60],[200,60],[220,60],[240,60],[260,60],[40,80],[60,80],[80,80],[100,80],[120,80],[140,80],[160,80],[180,80],[200,80],[220,80],[240,80],[260,80],[60,100],[80,100],[100,100],[120,100],[140,100],[160,100],[180,100],[200,100],[220,100],[240,100],[260,100],[100,120],[120,120],[140,120],[160,120],[180,120],[200,120],[220,120],[240,120]];
+    bodyCells.forEach(function(cell,index){
+      var x=cell[0],y=cell[1],size=20;
+      [[{x:x,y:y},{x:x+size,y:y},{x:x+size,y:y+size}],[{x:x,y:y},{x:x+size,y:y+size},{x:x,y:y+size}]].forEach(function(source,half){
+        var clipId=id+'-body-'+index+'-'+half;
+        var clip=svgNode('path',{},svgNode('clipPath',{id:clipId,clipPathUnits:'userSpaceOnUse'},defs));
+        var group=svgNode('g',{'clip-path':'url(#'+clipId+')'},body);
+        var image=svgNode('use',{href:'#'+id+'-painted-body'},group);
+        bodyPieces.push({source:source,clip:clip,image:image});
+      });
+    });
     return function draw(phase){
-      var bob=.8*Math.cos(phase*Math.PI*4);
-      body.setAttribute('transform','translate(0 '+bob.toFixed(3)+')');
-      var tip=7*Math.sin(phase*Math.PI*2);
-      var tailCurve='M251 94 C279 90 301 '+(108+tip)+' 326 '+(80+tip);
+      bodyPieces.forEach(function(piece){paintTriangle(piece,piece.source.map(function(point){return bodyAt(point.x,point.y,phase);}));});
+      var root=bodyAt(251,94,phase),tip=7*Math.sin(phase*Math.PI*2-.45),lift=root.y-94;
+      var tailCurve='M'+root.x.toFixed(3)+' '+root.y.toFixed(3)+' C279 '+(90+lift).toFixed(3)+' 301 '+(108+tip+lift*.5).toFixed(3)+' 326 '+(80+tip+lift*.3).toFixed(3);
       tailLine.setAttribute('d',tailCurve);
       tailFur.setAttribute('d',tailCurve);
       legs.forEach(function(leg){
         var p=footAt(phase+leg.offset,leg.base);
-        var hip={x:leg.base+(leg.far?3:0),y:(leg.base===100?97:99)+bob};
+        var hip=bodyAt(leg.base+(leg.far?3:0),leg.base===100?97:99,phase);
         var ankle={x:p.x,y:p.y-8};
         var joint=kneeAt(hip,ankle,leg.bend);
         var control={x:2*joint.x-(hip.x+ankle.x)/2,y:2*joint.y-(hip.y+ankle.y)/2};
