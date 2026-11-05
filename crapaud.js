@@ -1,4 +1,4 @@
-/* Murphy : bas des pattes étoffé, attaches sous le pelage et lecture légère. */
+/* Murphy : poses mises en mémoire, lecture légère et bref regard au croâ. */
 (function(){
   "use strict";
   if(window.__crapaudEgg)return;
@@ -202,14 +202,14 @@ function murphyRasterFrame(index,art){
   b.strokeStyle=b.createPattern(art.texture,'repeat');b.lineWidth=25;b.lineCap='round';b.beginPath();b.moveTo(root.x,root.y);
   b.bezierCurveTo(279,90+lift,301,108+tip+lift*.5,326,80+tip+lift*.3);b.stroke();
   var legs=[{type:'hind',base:239,offset:.5,far:true},{type:'front',base:107,offset:.25,far:true},{type:'hind',base:239,offset:0,far:false},{type:'front',base:103,offset:.75,far:false}];
-  // Les quatre membres passent sous le pelage : le torse cache leurs attaches.
-  legs.forEach(function(l){murphyRasterLeg(b,l,phase,art.limbs[l.type]);});
+  legs.filter(function(l){return l.far;}).forEach(function(l){murphyRasterLeg(b,l,phase,art.limbs[l.type]);});
   var neck=anatomyPose(101,98,phase);
   b.save();b.translate((neck.x-101)*.5,(neck.y-98)*.6);b.beginPath();b.moveTo(114,68);b.bezierCurveTo(126,56,146,58,158,72);b.lineTo(157,110);b.bezierCurveTo(141,119,121,114,113,103);b.closePath();b.clip();
   b.drawImage(murphyImages[bodyImage],180/320*murphyImages[bodyImage].width,75/140*murphyImages[bodyImage].height,45/320*murphyImages[bodyImage].width,50/140*murphyImages[bodyImage].height,112,57,48,60);b.restore();
   anatomicalBodyCells.forEach(function(cell){var x=cell[0],y=cell[1];
     [[{x:x,y:y},{x:x+20,y:y},{x:x+20,y:y+20}],[{x:x,y:y},{x:x+20,y:y+20},{x:x,y:y+20}]].forEach(function(source){murphyTriangle(b,art.body,source,source.map(function(v){return anatomyPose(v.x,v.y,phase);}));});
   });
+  legs.filter(function(l){return !l.far;}).forEach(function(l){murphyRasterLeg(n,l,phase,art.limbs[l.type]);});
   return {base:base,front:front,phase:phase,neck:neck};
 }
 function prepareMurphyFrames(){
