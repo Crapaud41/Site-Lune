@@ -55,10 +55,10 @@ function supportAt(phase){
   return softStep(0,.12,p)*(1-softStep(.48,.66,p));
 }
 function glanceAt(ms){
-  if(ms<0||ms>=1100)return 0;
+  if(ms<0||ms>=1600)return 0;
   if(ms<250)return softStep(0,250,ms);
-  if(ms<750)return 1;
-  return 1-softStep(750,1100,ms);
+  if(ms<1250)return 1;
+  return 1-softStep(1250,1600,ms);
 }
 function anatomyPose(x,y,phase){
   var theta=phase*Math.PI*2,along=softStep(100,234,x);
@@ -130,6 +130,14 @@ function anatomicalKeys(leg,phase){
 
 // Les déformations sont préparées au repos. La marche ne déplace ensuite que trois images.
 var murphyFrames=null,murphyFrameCount=32,murphyRasterScale=1.5;
+function murphyLimbCenter(keys,v,type){
+  var center=limbCurve(keys,v);
+  if(type!=='hind')return center;
+  var amount=softStep(.30,.44,v)*(1-softStep(.64,.78,v));
+  if(!amount)return center;
+  var before=limbCurve(keys,Math.max(0,v-.10)),after=limbCurve(keys,Math.min(1,v+.10));
+  return {x:center.x+(before.x-2*center.x+after.x)*.32*amount,y:center.y+(before.y-2*center.y+after.y)*.32*amount};
+}
 function murphyLowerLegScale(v,type){
   var knee=type==='front'?.60:.56;
   return 1+.42*softStep(knee,knee+.16,v)-.07*softStep(.90,1,v);
@@ -163,8 +171,8 @@ function murphyArtwork(){
   var limbs={};
   ['front','hind'].forEach(function(type){
     var image=murphySurface(100,320),c=image.getContext('2d');c.drawImage(murphyImages[anatomyAssets[type].image],0,0,100,320);
-    var fade=c.createLinearGradient(0,0,0,134);fade.addColorStop(0,'rgba(255,255,255,0)');
-    fade.addColorStop(.60,'rgba(255,255,255,.65)');fade.addColorStop(1,'white');
+    var fade=c.createLinearGradient(0,0,0,160);fade.addColorStop(0,'rgba(255,255,255,0)');
+    fade.addColorStop(.45,'rgba(255,255,255,0)');fade.addColorStop(.68,'rgba(255,255,255,.25)');fade.addColorStop(1,'white');
     c.globalCompositeOperation='destination-in';c.fillStyle=fade;c.fillRect(0,0,100,320);limbs[type]=image;
   });
   var texture=murphySurface(84,84),t=texture.getContext('2d');
@@ -178,7 +186,7 @@ function murphyRasterLeg(ctx,leg,phase,art){
   var pose=anatomicalKeys(leg,phase),centers=anatomyAssets[leg.type].centers;
   var roll=pawRoll(phase+leg.offset),load=supportAt(phase+leg.offset);
   function map(source){
-    var v=source.y/320,center=limbCurve(pose.keys,v),before=limbCurve(pose.keys,Math.max(0,v-.005)),after=limbCurve(pose.keys,Math.min(1,v+.005));
+    var v=source.y/320,center=murphyLimbCenter(pose.keys,v,leg.type),before=murphyLimbCenter(pose.keys,Math.max(0,v-.005),leg.type),after=murphyLimbCenter(pose.keys,Math.min(1,v+.005),leg.type);
     var dx=after.x-before.x,dy=after.y-before.y,length=Math.max(.001,Math.hypot(dx,dy));
     var upright=softStep(.55,.84,v),nx=dy/length*(1-upright)+upright,ny=-dx/length*(1-upright);
     var sample=Math.min(17,v*20),index=Math.floor(sample),mix=sample-index;
