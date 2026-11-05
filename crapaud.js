@@ -50,6 +50,20 @@ function kneeAt(hip, ankle, bend) {
     if(parent)parent.appendChild(node);
     return node;
   }
+  // Une seule silhouette effilée : pas de raccord circulaire au coude.
+  function legShape(hip,joint,ankle,upperWidth,lowerWidth){
+    function unit(a,b){var dx=b.x-a.x,dy=b.y-a.y,l=Math.max(.001,Math.hypot(dx,dy));return {x:dx/l,y:dy/l,length:l};}
+    var u=unit(hip,joint),v=unit(joint,ankle),t=unit(hip,ankle);
+    var radii=[upperWidth/2,(upperWidth+lowerWidth)/4,lowerWidth/2];
+    function side(sign){return [hip,joint,ankle].map(function(p,i){var axis=[u,t,v][i];return {x:p.x+axis.y*radii[i]*sign,y:p.y-axis.x*radii[i]*sign};});}
+    var l=side(1),r=side(-1),f=function(n){return n.toFixed(3);};
+    function point(p){return f(p.x)+' '+f(p.y);}
+    function curve(a,b,ua,ub,length){return ' C'+f(a.x+ua.x*length*.36)+' '+f(a.y+ua.y*length*.36)+' '+f(b.x-ub.x*length*.36)+' '+f(b.y-ub.y*length*.36)+' '+point(b);}
+    var d='M'+point(l[0])+curve(l[0],l[1],u,t,u.length)+curve(l[1],l[2],t,v,v.length);
+    d+=' Q'+point(ankle)+' '+point(r[2]);
+    var backV={x:-v.x,y:-v.y},backT={x:-t.x,y:-t.y},backU={x:-u.x,y:-u.y};
+    return d+curve(r[2],r[1],backV,backT,v.length)+curve(r[1],r[0],backT,backU,u.length)+' Z';
+  }
   function createMurphy(el){
     var id='murphy-'+(++sequence);
     var svg=svgNode('svg',{viewBox:'0 0 360 190','aria-hidden':'true'},el);
@@ -66,6 +80,19 @@ function kneeAt(hip, ankle, bend) {
       var patch=svgNode('svg',{x:0,y:0,width:42,height:42,viewBox:'175 60 42 42',overflow:'hidden'},patchGroup);
       svgNode('image',{href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},patch);
     });
+    var coatFilter=svgNode('filter',{id:id+'-short-coat',x:'0%',y:'0%',width:'100%',height:'100%'},defs);
+    svgNode('feColorMatrix',{type:'saturate',values:'.45'},coatFilter);
+    var transfer=svgNode('feComponentTransfer',{},coatFilter);
+    svgNode('feFuncR',{type:'linear',slope:'.70',intercept:'.008'},transfer);
+    svgNode('feFuncG',{type:'linear',slope:'.68',intercept:'.010'},transfer);
+    svgNode('feFuncB',{type:'linear',slope:'.68',intercept:'.012'},transfer);
+    var shortCoat=svgNode('pattern',{id:id+'-short-coat-texture',patternUnits:'userSpaceOnUse',width:84,height:84,patternTransform:'scale(.42 .60)'},defs);
+    svgNode('rect',{width:84,height:84,fill:'#14161a'},shortCoat);
+    svgNode('rect',{width:84,height:84,fill:'url(#'+id+'-texture)',filter:'url(#'+id+'-short-coat)'},shortCoat);
+    var legGradient=svgNode('linearGradient',{id:id+'-leg-shade',gradientUnits:'userSpaceOnUse',x1:0,y1:105,x2:0,y2:177},defs);
+    svgNode('stop',{offset:'0%','stop-color':'#302827'},legGradient);
+    svgNode('stop',{offset:'45%','stop-color':'#1b1c20'},legGradient);
+    svgNode('stop',{offset:'100%','stop-color':'#111419'},legGradient);
     var tail=svgNode('g',{},svg);
     var tailLine=svgNode('path',{fill:'none',stroke:'url(#'+id+'-fur)','stroke-width':25,'stroke-linecap':'round'},tail);
     var tailFur=svgNode('path',{fill:'none',stroke:'url(#'+id+'-texture)','stroke-width':24,'stroke-linecap':'round'},tail);
@@ -77,16 +104,13 @@ function kneeAt(hip, ankle, bend) {
     ];
     legs.forEach(function(leg){
       leg.group=svgNode('g',{'data-leg':(leg.base===100?'front':'hind')+(leg.far?'-far':'-near')},svg);
-      var color='#342b28';
-      leg.upperWidth=leg.base===100?24:29;
-      leg.upper=svgNode('path',{fill:'none',stroke:color,'stroke-width':leg.upperWidth,'stroke-linecap':'round','stroke-linejoin':'round'},leg.group);
-      leg.upperFur=svgNode('path',{fill:'none',stroke:'url(#'+id+'-texture)','stroke-width':leg.upperWidth,'stroke-linecap':'round'},leg.group);
-      leg.lower=svgNode('path',{fill:'none',stroke:color,'stroke-width':19,'stroke-linecap':'round'},leg.group);
-      leg.lowerFur=svgNode('path',{fill:'none',stroke:'url(#'+id+'-texture)','stroke-width':19,'stroke-linecap':'round'},leg.group);
-      leg.fuzz=svgNode('path',{fill:'none',stroke:'url(#'+id+'-texture)','stroke-width':3,'stroke-linecap':'round'},leg.group);
-      leg.paw=svgNode('ellipse',{rx:12.5,ry:6.5,fill:'url(#'+id+'-texture)'},leg.group);
-      leg.toes=svgNode('path',{fill:'none',stroke:leg.far?'#242124':'#4f4039','stroke-width':.8,'stroke-opacity':'.5'},leg.group);
-      leg.hair=svgNode('path',{fill:'none',stroke:leg.far?'#252126':'#57443a','stroke-width':.7,'stroke-opacity':'.35'},leg.group);
+      leg.upperWidth=leg.base===100?22:27;
+      leg.outline=svgNode('path',{fill:'url(#'+id+'-leg-shade)'},leg.group);
+      leg.coat=svgNode('path',{fill:'url(#'+id+'-short-coat-texture)','fill-opacity':'.95'},leg.group);
+      leg.fuzz=svgNode('path',{fill:'none',stroke:'#232125','stroke-width':1.1,'stroke-linecap':'round'},leg.group);
+      leg.paw=svgNode('ellipse',{rx:10,ry:5.5,fill:'url(#'+id+'-short-coat-texture)'},leg.group);
+      leg.toes=svgNode('path',{fill:'none',stroke:'#3a363b','stroke-width':.6,'stroke-opacity':'.18'},leg.group);
+      leg.hair=svgNode('path',{fill:'none',stroke:'#484047','stroke-width':.6,'stroke-opacity':'.13'},leg.group);
     });
     var body=svgNode('image',{href:bodyImage,x:0,y:0,width:320,height:140,preserveAspectRatio:'none'},svg);
     return function draw(phase){
@@ -102,26 +126,25 @@ function kneeAt(hip, ankle, bend) {
         var ankle={x:p.x,y:p.y-8};
         var joint=kneeAt(hip,ankle,leg.bend);
         var n=function(v){return v.toFixed(3);};
-        leg.upper.setAttribute('d','M'+n(hip.x)+' '+n(hip.y)+' Q'+n(hip.x+leg.bend*5)+' '+n((hip.y+joint.y)/2)+' '+n(joint.x)+' '+n(joint.y));
-        leg.lower.setAttribute('d','M'+n(joint.x)+' '+n(joint.y)+' Q'+n((joint.x+ankle.x)/2)+' '+n((joint.y+ankle.y)/2)+' '+n(ankle.x)+' '+n(ankle.y));
-        leg.upperFur.setAttribute('d',leg.upper.getAttribute('d'));
-        leg.lowerFur.setAttribute('d',leg.lower.getAttribute('d'));
+        var silhouette=legShape(hip,joint,ankle,leg.upperWidth,15.5);
+        leg.outline.setAttribute('d',silhouette);
+        leg.coat.setAttribute('d',silhouette);
         // Petites mèches sur les côtés, solidaires des deux segments articulés.
         function edgeFur(a,b,width){
           var dx=b.x-a.x,dy=b.y-a.y,len=Math.max(.001,Math.hypot(dx,dy));
           var ux=dx/len,uy=dy/len,px=uy,py=-ux,d='';
           [-1,1].forEach(function(side){
-            [.28,.52,.75].forEach(function(t){
+            [.40,.70].forEach(function(t){
               var x=a.x+dx*t+px*width*.43*side,y=a.y+dy*t+py*width*.43*side;
-              d+='M'+n(x)+' '+n(y)+' Q'+n(x+px*side*2+ux*3)+' '+n(y+py*side*2+uy*3)+' '+n(x+px*side*3+ux*6)+' '+n(y+py*side*3+uy*6)+' ';
+              d+='M'+n(x)+' '+n(y)+' Q'+n(x+px*side*.5+ux)+' '+n(y+py*side*.5+uy)+' '+n(x+px*side+ux*2.5)+' '+n(y+py*side+uy*2.5)+' ';
             });
           });
           return d;
         }
-        leg.fuzz.setAttribute('d',edgeFur(hip,joint,leg.upperWidth)+edgeFur(joint,ankle,19));
-        leg.paw.setAttribute('cx',n(p.x-4));leg.paw.setAttribute('cy',n(p.y-6.5));
-        leg.toes.setAttribute('d','M'+n(p.x-11)+' '+n(p.y-6)+' l-1 4 M'+n(p.x-6)+' '+n(p.y-5)+' l-1 4');
-        leg.hair.setAttribute('d','M'+n(joint.x-3)+' '+n(joint.y-5)+' l-2 8 M'+n(joint.x+3)+' '+n(joint.y-1)+' l-2 7 M'+n(ankle.x+4)+' '+n(ankle.y-16)+' l-1 8');
+        leg.fuzz.setAttribute('d',edgeFur(hip,joint,leg.upperWidth)+edgeFur(joint,ankle,15.5));
+        leg.paw.setAttribute('cx',n(p.x-3));leg.paw.setAttribute('cy',n(p.y-5.5));
+        leg.toes.setAttribute('d','M'+n(p.x-9)+' '+n(p.y-5)+' l-.5 2 M'+n(p.x-5)+' '+n(p.y-4)+' l-.5 2');
+        leg.hair.setAttribute('d','M'+n(joint.x-2)+' '+n(joint.y-3)+' l-.5 4 M'+n(ankle.x+3)+' '+n(ankle.y-12)+' l-.5 4');
         leg.group.setAttribute('data-grounded',String(p.planted));
       });
     };
