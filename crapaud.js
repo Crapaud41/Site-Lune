@@ -168,7 +168,7 @@ function createAnatomicalMurphy(el){
     if(!await ready){running=false;return;}
     var W=innerWidth,H=innerHeight;
     var w=Math.max(190,Math.min(420,Math.min(W,H)*.30));
-    var duration=Math.max(5000,Math.min(10500,(W+w)*5));
+    var duration=Math.max(7000,Math.min(14700,(W+w)*7));
     var scale=w/360,speed=(W+w)/(duration/1000);
     // Durant l’appui : déplacement du pied = déplacement inverse du corps.
     var cycle=56/(.66*(speed/scale))*1000;
