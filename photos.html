@@ -247,6 +247,7 @@
 </div>
 
 <script src="crapaud.js?v=murphy-regard-v18"></script>
+<script src="jeu-crapaud/photo-trigger.js?v=20261106a"></script>
 <script>
 const ALBUMS = {
   lune: { emoji:'🌙', photos:['photos/lune/pleine-lune/04 Juin 2023.jpg','photos/lune/autre-phase/12 Juillet 2026.jpg'] },
@@ -693,7 +694,14 @@ const photoZoom = (() => {
   return {reset,fit,change:factor=>zoomTo(scale*factor)};
 })();
 
+function maybeEnterCrapaud(item){
+  if (!item || currentCategory !== 'nature' || Number(item.sub) !== 2 || !window.CrapaudSurprise) return false;
+  if (matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches) return false;
+  return CrapaudSurprise.enter(item.url,{category:currentCategory,filter:Number(currentFilter),page:currentPage});
+}
+function skipCompletedCrapaud(item){return Boolean(item && window.CrapaudSurprise?.completed() && CrapaudSurprise.isSecret(item.url));}
 function openLightbox(i){
+  if (maybeEnterCrapaud(visibleItems[i])) return;
   if (galleryFade.busy) return;
   stopFade(lightboxFade);
   document.getElementById('imageViewport').setAttribute('aria-busy','false');
@@ -705,7 +713,7 @@ function openLightbox(i){
 }
 function showLightbox(){
   const item = visibleItems[lbIndex];
-  if (!item) return;
+  if (!item || maybeEnterCrapaud(item)) return;
   const meta = CATEGORY_META[currentCategory];
   const desc = descriptionFor(item);
   const date = (meta.showDate && item.dateLabel) ? item.dateLabel : '';
@@ -727,14 +735,16 @@ function showLightbox(){
   position.textContent = `${photoPosition} / ${photoTotal}`;
   position.setAttribute('aria-label', `Photographie ${photoPosition} sur ${photoTotal}`);
   document.querySelector('.lb-caption').style.display = '';
-  document.getElementById('lbPrev').hidden = lbIndex <= 0;
-  document.getElementById('lbNext').hidden = lbIndex >= visibleItems.length - 1;
+  document.getElementById('lbPrev').hidden = !visibleItems.slice(0,lbIndex).some(item=>!skipCompletedCrapaud(item));
+  document.getElementById('lbNext').hidden = !visibleItems.slice(lbIndex+1).some(item=>!skipCompletedCrapaud(item));
   [lbIndex - 1, lbIndex + 1].forEach(j => { if (visibleItems[j]) new Image().src = visibleItems[j].url; });  // précharge les voisines
 }
 async function stepLightbox(d){
   if (lightboxFade.busy) return;
-  const j = lbIndex + d;
+  let j = lbIndex + d;
+  while (j >= 0 && j < visibleItems.length && skipCompletedCrapaud(visibleItems[j])) j += d;
   if (j < 0 || j >= visibleItems.length) return;
+  if (maybeEnterCrapaud(visibleItems[j])) return;
   const id = ++lightboxFade.id;
   lightboxFade.busy = true;
   const viewport = document.getElementById('imageViewport');
@@ -791,6 +801,18 @@ document.addEventListener('keydown', (e) => {
   else if (e.key === 'ArrowLeft') stepLightbox(-1);
   else if (e.key === 'Escape') closeLightbox();
 });
+
+async function restoreCrapaudAlbum(){
+  const state = window.CrapaudSurprise?.takeReturnState();
+  if (!state || !Object.prototype.hasOwnProperty.call(CATEGORY_META,state.category)) return;
+  await openGallery(state.category);
+  const filter = Number(state.filter), page = Number(state.page);
+  currentFilter = Number.isInteger(filter) && filter >= 0 && filter < CATEGORY_META[state.category].folderSlugs.length ? filter : CATEGORY_META[state.category].defaultFilter;
+  currentPage = Number.isInteger(page) && page >= 0 ? page : 0;
+  document.querySelectorAll('#filterTabs .filter-tab').forEach(tab=>tab.classList.toggle('active',Number(tab.dataset.filter)===Number(currentFilter)));
+  renderGrid();
+}
+restoreCrapaudAlbum();
 </script>
 
 </body>
