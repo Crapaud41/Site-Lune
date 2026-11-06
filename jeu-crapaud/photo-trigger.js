@@ -12,14 +12,22 @@
     try { return decodeURIComponent(new URL(src, location.href).pathname).endsWith('/photos/nature/animaux/02 Juillet 2026.jpg'); }
     catch (e) { return false; }
   }
+  function canPlay() {
+    var n = navigator;
+    if (n.userAgentData?.mobile || /Android|iPhone|iPad|iPod|Mobile/i.test(n.userAgent || '')) return false;
+    // iPadOS peut annoncer un navigateur Mac lorsqu'il affiche la version ordinateur.
+    if (n.platform === 'MacIntel' && n.maxTouchPoints > 1) return false;
+    return !(window.matchMedia && window.matchMedia('(pointer: coarse)').matches && !window.matchMedia('(any-pointer: fine)').matches);
+  }
   window.CrapaudSurprise = {
     isSecret: secret,
+    canPlay: canPlay,
     completed: read,
     reset: clear,
     // true : cette photo est traitée ici, ne pas ouvrir la visionneuse normale.
     enter: function (src, returnState, gameUrl) {
-      if (!secret(src)) return false;
-      if (read() || entering) return true;
+      if (!secret(src) || read() || !canPlay()) return false;
+      if (entering) return true;
       entering = true;
       try {
         sessionStorage.setItem('crapaud_return_url', location.href);
@@ -28,15 +36,10 @@
       location.assign(new URL(gameUrl || 'jeu-crapaud/index.html', location.href).href);
       return true;
     },
-    // Les flèches sautent la photo déjà jouée, pour ne pas rester bloquées dessus.
+    // Après la partie, la photo reprend sa place normale dans la visionneuse.
     nextIndex: function (photos, current, direction) {
       if (!photos.length) return -1;
-      for (var step = 1; step <= photos.length; step++) {
-        var index = ((current + direction * step) % photos.length + photos.length) % photos.length;
-        var src = typeof photos[index] === 'string' ? photos[index] : photos[index].src;
-        if (!(read() && secret(src))) return index;
-      }
-      return -1;
+      return ((current + direction) % photos.length + photos.length) % photos.length;
     },
     takeReturnState: function () {
       try { var value = sessionStorage.getItem('crapaud_return_state'); sessionStorage.removeItem('crapaud_return_state'); return value ? JSON.parse(value) : null; }

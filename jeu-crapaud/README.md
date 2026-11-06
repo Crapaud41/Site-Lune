@@ -24,7 +24,7 @@ Les lucioles sont facultatives. Un putois touché de côté fait recommencer au 
 
 Passer sous la banderole déclenche l'arrivée de Murphy. Le crapaud monte sur son dos et ils repartent ensemble, tournés vers la droite. À la fin, **Rejouer** relance le niveau et **Terminer la partie** ouvre la page Photos. Il n'y a plus de bouton de retour en haut de l'écran.
 
-Sur le site, une partie terminée est mémorisée dans l'onglet : cliquer à nouveau sur la photo du crapaud ne relance pas le jeu. Actualiser avec **F5** autorise une nouvelle partie. Le pont `web/photo-trigger.js` relie le jeu à la galerie, y compris depuis les flèches de la visionneuse. Le retour restaure l'album, la catégorie et la page. Dans Godot sur ordinateur, relancer avec F5 dans l'éditeur démarre aussi une nouvelle session.
+Sur le site, une partie terminée est mémorisée dans l'onglet : cliquer à nouveau sur la photo du crapaud l'ouvre normalement en grand, sans relancer le jeu. Les flèches de la visionneuse permettent aussi de la voir. Actualiser avec **F5** autorise une nouvelle partie. Le pont `web/photo-trigger.js` relie le jeu à la galerie. Le retour restaure l'album, la catégorie et la page. Sur téléphone et tablette, la photo s'ouvre directement, sans lancer le jeu prévu pour un clavier d'ordinateur. Dans Godot sur ordinateur, relancer avec F5 dans l'éditeur démarre aussi une nouvelle session.
 
 ## État de cette version
 

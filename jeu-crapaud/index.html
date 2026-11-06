@@ -12,6 +12,7 @@
 <body>
 <canvas id="canvas" tabindex="0" aria-label="Jeu du crapaud. Flèches gauche et droite pour avancer, flèche du haut pour sauter. Échap pour mettre en pause."></canvas>
 <section id="intro" aria-live="polite"><div id="words"><h1 id="headline">Oups…</h1><p id="message">Je crois que tu as cassé le site.</p><button type="button" id="return">Retourner sur le site</button><div id="note" role="status"></div></div></section>
+<script src="photo-trigger.js?v=20261106b"></script>
 <script src="index.js"></script>
 <script>
 (function(){
@@ -25,6 +26,7 @@
    location.assign(target.href);
  }
  window.CrapaudPage={returnToPhotos:returnToPhotos,showGame:function(){intro.hidden=true;canvas.focus({preventScroll:true});}};
+ if(window.CrapaudSurprise && !window.CrapaudSurprise.canPlay()){returnToPhotos();return;}
  setTimeout(function(){intro.classList.add('ready');},1000);
  if(completed){document.getElementById('headline').textContent='Le crapaud se repose.';document.getElementById('message').textContent='Une petite pause bien méritée. F5 pour rejouer !';button.textContent='Revenir aux photos';button.onclick=returnToPhotos;return;}
  button.addEventListener('click',function(){
