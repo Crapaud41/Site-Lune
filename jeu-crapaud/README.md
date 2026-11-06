@@ -41,6 +41,8 @@ Le dossier publié `jeu-crapaud` contient le moteur Godot, les ressources du jeu
 
 Le code source modifiable est fourni dans `source-godot.zip`. Les personnages, le décor et la police pixel sont dessinés par les scripts du projet. La licence du moteur Godot est jointe séparément.
 
+Après un nouvel export dans `exports`, lancer `node web/package-web.cjs` avec Node.js pour préparer le dossier `web-build` à envoyer sur GitHub. Ne pas envoyer le fichier brut `index.wasm` : le script prépare sa version compressée et remplit les empreintes du shell. Il n'est pas nécessaire de relancer ce script pour jouer à la version déjà publiée.
+
 ## Vérifications
 
 Le script `tests/gameplay_test.gd` vérifie les déplacements, le saut, les collisions, les lucioles, le point de reprise, la persistance des putois éliminés, la chute dans l'eau, la fin et le redémarrage de la partie.
