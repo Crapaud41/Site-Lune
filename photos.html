@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lune — Photos</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="recits.css?v=20261107a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Work+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -223,6 +224,7 @@
 </main>
 
 <div id="lightbox" role="dialog" aria-modal="true" aria-label="Photographie agrandie">
+  <div class="lightbox-layout">
   <div class="lightbox-content">
     <div class="lightbox-toolbar">
       <div class="zoom-controls" role="group" aria-label="Zoom de la photographie">
@@ -237,10 +239,21 @@
       <img id="lbImg" src="" alt="" draggable="false">
     </div>
     <div class="lb-caption">
+      <button type="button" id="recitToggle" class="recit-toggle" aria-label="Découvrir cette espèce" aria-expanded="false" aria-controls="recitPanel" hidden>?</button>
       <div class="lb-sub" id="lbSub">—</div>
       <div class="lb-date" id="lbDate"></div>
       <div class="lb-position" id="lbPosition" aria-live="polite" aria-atomic="true"></div>
     </div>
+  </div>
+  <aside id="recitPanel" class="recit-panel" aria-labelledby="recitTitle" tabindex="-1" hidden>
+    <button type="button" id="recitBack" class="recit-back">← Revenir à la photo</button>
+    <p class="recit-eyebrow">LE VIVANT, DE PLUS PRÈS</p>
+    <h2 id="recitTitle"></h2>
+    <p id="recitScientific" class="recit-scientific"></p>
+    <dl id="recitFacts" class="recit-facts"></dl>
+    <div id="recitText" class="recit-text"></div>
+    <p id="recitSources" class="recit-sources"></p>
+  </aside>
   </div>
   <button class="lb-arrow" id="lbPrev" aria-label="Photo précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <button class="lb-arrow" id="lbNext" aria-label="Photo suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -576,7 +589,9 @@ const photoZoom = (() => {
 
   function fit(){
     if (!img.naturalWidth || !img.naturalHeight) return;
-    const maxWidth = Math.min(720, window.innerWidth * .9);
+    const panelWidth = document.getElementById('lightbox').classList.contains('recit-open') && window.innerWidth > 900
+      ? document.getElementById('recitPanel').getBoundingClientRect().width + 24 : 0;
+    const maxWidth = Math.min(720, window.innerWidth * .9 - panelWidth);
     const maxHeight = Math.max(80, Math.min(window.innerHeight * .7, window.innerHeight - 210));
     const ratio = Math.min(1, maxWidth / img.naturalWidth, maxHeight / img.naturalHeight);
     viewport.style.width = `${img.naturalWidth * ratio}px`;
@@ -733,6 +748,7 @@ function showLightbox(){
   position.textContent = `${photoPosition} / ${photoTotal}`;
   position.setAttribute('aria-label', `Photographie ${photoPosition} sur ${photoTotal}`);
   document.querySelector('.lb-caption').style.display = '';
+  window.PhotoRecits?.show({path:`photos/${currentCategory}/${meta.folderSlugs[item.sub]}/${item.name}`});
   document.getElementById('lbPrev').hidden = lbIndex <= 0;
   document.getElementById('lbNext').hidden = lbIndex >= visibleItems.length - 1;
   [lbIndex - 1, lbIndex + 1].forEach(j => { if (visibleItems[j]) new Image().src = visibleItems[j].url; });  // précharge les voisines
@@ -767,6 +783,7 @@ async function stepLightbox(d){
   }
 }
 function closeLightbox(){
+  window.PhotoRecits?.close(false);
   stopFade(lightboxFade);
   document.getElementById('imageViewport').setAttribute('aria-busy','false');
   document.getElementById('lightbox').classList.remove('visible');
@@ -781,6 +798,9 @@ document.getElementById('lightbox').addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (!document.getElementById('lightbox').classList.contains('visible')) return;
+  if (e.key === 'Escape' && window.PhotoRecits?.isOpen()){
+    e.preventDefault(); window.PhotoRecits.close(); return;
+  }
   if (!e.ctrlKey && !e.metaKey && ['+','=','-','_','0'].includes(e.key)){
     e.preventDefault();
     if (e.key === '0') photoZoom.reset();
@@ -788,7 +808,7 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   if (e.key === 'Tab'){
-    const controls = [...document.getElementById('lightbox').querySelectorAll('button:not([disabled]),[tabindex="0"]')].filter(el=>el.getClientRects().length);
+    const controls = [...document.getElementById('lightbox').querySelectorAll('button:not([disabled]),a[href],[tabindex="0"]')].filter(el=>el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden');
     const first = controls[0], last = controls[controls.length-1];
     if (e.shiftKey && document.activeElement === first){e.preventDefault();last.focus();}
     else if (!e.shiftKey && document.activeElement === last){e.preventDefault();first.focus();}
@@ -810,7 +830,9 @@ async function restoreCrapaudAlbum(){
   renderGrid();
 }
 restoreCrapaudAlbum();
+document.addEventListener('recit:layout',()=>photoZoom.fit());
 </script>
+<script src="recits.js?v=20261107a"></script>
 
 </body>
 </html>
