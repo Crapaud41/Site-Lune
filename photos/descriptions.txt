@@ -79,7 +79,7 @@ animaux/2 Mai 2024.jpg | Chatouille
 animaux/01 Janvier 2024.jpg | Chatouille
 animaux/21 Mai 2023.jpg | Le petit inconnu
 animaux/7 Février 2023.jpg | Bernard
-animaux/27 Novembre 2022.jpg | Fantôme
+animaux/27 Novembre 2022.jpg | Citrouille
 animaux/30 Octobre 2022.jpg | Chatouille
 animaux/20 Septembre 2022.jpg | Le petit inconnu
 animaux/31 Mai 2021.jpg | Le petit inconnu
