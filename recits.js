@@ -32,8 +32,8 @@
   async function load(){
     if(loading)return loading;
     loading=(async()=>{
-      // Cette première fiche reste disponible si l'API de liste est momentanément indisponible.
-      const files=new Set(['lucane-cerf-volant.txt']);
+      // Les fiches publiées restent disponibles si l'API de liste est momentanément indisponible.
+      const files=new Set(['lucane-cerf-volant.txt','passiflore-bleue.txt']);
       try{
         const response=await fetch('https://api.github.com/repos/Crapaud41/Site-Lune/contents/recits',{cache:'no-cache'});
         if(response.ok){const entries=await response.json();if(Array.isArray(entries))for(const file of entries)if(file.type==='file'&&/\.txt$/i.test(file.name))files.add(file.name);}
