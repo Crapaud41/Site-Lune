@@ -1,0 +1,17 @@
+Photo : photos/nature/fleurs/19 Juillet 2024.jpg
+Photo : photos/nature/fleurs/24 Septembre 2023.jpg
+Photo : photos/nature/fleurs/23 Août 2023.jpg
+Photo : photos/nature/fleurs/2 Août 2023.jpg
+Titre : Passiflore bleue
+Nom scientifique : Passiflora caerulea
+Famille : Passifloracées (Passifloraceae)
+Ordre : Malpighiales
+Milieu : Jardins, clôtures et treillages ensoleillés
+
+Texte :
+La passiflore bleue est une plante grimpante originaire d’Amérique du Sud. Ses vrilles s’enroulent autour des supports pour l’aider à grimper.
+
+On la reconnaît à ses fleurs blanches ornées d’une couronne de fins filaments bleus et violets. Elles apparaissent de l’été à l’automne. Ses feuilles sont découpées en plusieurs lobes, comme les doigts d’une main.
+
+Source : Kew | https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:321949-2
+Source : RHS | https://www.rhs.org.uk/plants/12356/passiflora-caerulea/details
