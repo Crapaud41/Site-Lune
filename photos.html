@@ -368,13 +368,18 @@ async function fetchCategoryPhotos(category){
   if (galleryCache[category]) return galleryCache[category];
   const meta = CATEGORY_META[category];
   const results = await Promise.all(meta.folderSlugs.map((slug, i) => fetchFolder(category, i, slug)));
-  const items = results.flat();
-  items.sort((a, b) => {
-    if (a.date && b.date) return b.date - a.date;
-    if (a.date) return -1;
-    if (b.date) return 1;
-    return 0;
+  // Les deux albums lunaires suivent les prises de vue, des plus anciennes aux plus récentes.
+  results.forEach((photos, subIndex) => {
+    const chronological = category === 'lune' &&
+      ['pleine-lune', 'autre-phase'].includes(meta.folderSlugs[subIndex]);
+    photos.sort((a, b) => {
+      if (a.date && b.date) return chronological ? a.date - b.date : b.date - a.date;
+      if (a.date) return -1;
+      if (b.date) return 1;
+      return a.name.localeCompare(b.name, 'fr', {numeric:true});
+    });
   });
+  const items = results.flat();
   galleryCache[category] = items;
   return items;
 }
