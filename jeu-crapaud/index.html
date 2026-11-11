@@ -44,7 +44,7 @@
      if(typeof DecompressionStream!=='function')throw Error('Navigateur non compatible');
      return new Response(response.body.pipeThrough(new DecompressionStream('gzip')),{headers:{'Content-Type':'application/wasm','Content-Length':'39514754'}});
    }
-   if(url.origin===location.origin&&url.pathname.endsWith('/index.pck')){url.searchParams.set('v','b5321753c668');return nativeFetch(url.href,options);}
+   if(url.origin===location.origin&&url.pathname.endsWith('/index.pck')){url.searchParams.set('v','b0c25afb6836');return nativeFetch(url.href,options);}
    return nativeFetch(input,options);
  };
  var config={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":27040,"index.wasm":39514754},"focusCanvas":false,"gdextensionLibs":[],"godotPoolSize":4};
