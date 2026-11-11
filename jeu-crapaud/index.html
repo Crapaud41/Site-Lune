@@ -44,10 +44,10 @@
      if(typeof DecompressionStream!=='function')throw Error('Navigateur non compatible');
      return new Response(response.body.pipeThrough(new DecompressionStream('gzip')),{headers:{'Content-Type':'application/wasm','Content-Length':'39514754'}});
    }
-   if(url.origin===location.origin&&url.pathname.endsWith('/index.pck')){url.searchParams.set('v','2ac47cd0d652');return nativeFetch(url.href,options);}
+   if(url.origin===location.origin&&url.pathname.endsWith('/index.pck')){url.searchParams.set('v','a0623b0c4a35');return nativeFetch(url.href,options);}
    return nativeFetch(input,options);
  };
- var config={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":28560,"index.wasm":39514754},"focusCanvas":false,"gdextensionLibs":[],"godotPoolSize":4};
+ var config={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":28512,"index.wasm":39514754},"focusCanvas":false,"gdextensionLibs":[],"godotPoolSize":4};
  var missing=Engine.getMissingFeatures?Engine.getMissingFeatures({threads:false}):[];
  if(missing.length){failure();return;}
  var engine=new Engine(config);
