@@ -4,7 +4,7 @@ Deuxième niveau, construit à partir des commandes et de l'esprit du premier ni
 
 ## Jouer
 
-Dans Godot, ouvrir `lantern.tscn` puis appuyer sur F6. Entrée démarre la promenade.
+Dans Godot, ouvrir `lantern.tscn` puis appuyer sur F6. Deux bulles présentent le dialogue entre le crapaud et Murphy dans le décor. Entrée affiche la réplique suivante, puis démarre la promenade. Les indications se cliquent aussi. Le dialogue ne revient ni après une chute ni en rejouant le niveau.
 
 Depuis le niveau 1, le bouton **Suivant** mène à ce nouveau parcours, dans Godot comme dans la version Web.
 
