@@ -1,6 +1,6 @@
 # Le Détour du Crapaud
 
-Un niveau autonome en pixel art pour le site « Au fil des nuits ».
+Deux niveaux en pixel art pour le site « Au fil des nuits ».
 
 ## Ouvrir le jeu
 
@@ -22,7 +22,9 @@ Le bouton « Commencer » lance l'introduction de la fausse panne. Le crapaud av
 
 Les lucioles sont facultatives. Un putois touché de côté fait recommencer au début ou à la lanterne du milieu. Un putois écrasé rebondit et tombe hors de l'écran ; il reste éliminé lors des reprises de cette partie. Le bouton Rejouer remet tout le niveau à zéro.
 
-Passer sous la banderole déclenche l'arrivée de Murphy. Le crapaud monte sur son dos et ils repartent ensemble, tournés vers la droite. À la fin, **Rejouer** relance le niveau et **Terminer la partie** ouvre la page Photos. Il n'y a plus de bouton de retour en haut de l'écran.
+Passer sous la banderole déclenche l'arrivée de Murphy et leur petite conversation. Le crapaud monte sur son dos et ils repartent ensemble, tournés vers la droite. À la fin, **Suivant** ouvre le niveau 2, **La Lisière des lanternes**, et **Revenir aux photos** ouvre la galerie. Il n'y a pas de bouton de retour en haut de l'écran.
+
+Dans le niveau 2, on contrôle Murphy avec le crapaud sur son dos. Espace permet d'attraper une luciole proche avec la langue. La fenêtre ouverte et éclairée de la maison termine le parcours. Le menu final propose **Rejouer** et **Revenir aux photos**. Voir `NIVEAU-2.md` pour les détails.
 
 Sur le site, une partie terminée est mémorisée dans l'onglet : cliquer à nouveau sur la photo du crapaud l'ouvre normalement en grand, sans relancer le jeu. Les flèches de la visionneuse permettent aussi de la voir. Actualiser avec **F5** autorise une nouvelle partie. Le pont `web/photo-trigger.js` relie le jeu à la galerie. Le retour restaure l'album, la catégorie et la page. Sur téléphone et tablette, la photo s'ouvre directement, sans lancer le jeu prévu pour un clavier d'ordinateur. Dans Godot sur ordinateur, relancer avec F5 dans l'éditeur démarre aussi une nouvelle session.
 
