@@ -83,3 +83,5 @@ animaux/27 Novembre 2022.jpg | Citrouille
 animaux/30 Octobre 2022.jpg | Chatouille
 animaux/20 Septembre 2022.jpg | Le petit inconnu
 animaux/31 Mai 2021.jpg | Le petit inconnu
+animaux/23 Mai 2026.jpg | Murphy
+
