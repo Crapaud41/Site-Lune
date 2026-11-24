@@ -114,7 +114,7 @@
     display:none; position:fixed; left:var(--lightbox-x,0px); top:var(--lightbox-y,0px); z-index:200;
     width:var(--lightbox-width,100%); height:var(--lightbox-height,100dvh);
     background:rgba(3,4,10,0.92); backdrop-filter:blur(6px);
-    align-items:center; justify-content:center; padding:16px 5vw;
+    align-items:center; justify-content:center; padding:16px calc(3vw + 4rem);
   }
   #lightbox.visible{display:flex;}
   .lightbox-content{
@@ -609,18 +609,22 @@ const photoZoom = (() => {
     const boxStyle = getComputedStyle(box), cardStyle = getComputedStyle(content);
     const panelWidth = box.classList.contains('recit-open') && matchMedia('(min-width:901px)').matches
       ? document.getElementById('recitPanel').getBoundingClientRect().width + 24 : 0;
-    const maxWidth = Math.max(1, Math.min(720, width - parseFloat(boxStyle.paddingLeft) - parseFloat(boxStyle.paddingRight) - panelWidth));
+    const cardBorders = parseFloat(cardStyle.borderLeftWidth) + parseFloat(cardStyle.borderRightWidth);
+    const maxWidth = Math.max(1, width - parseFloat(boxStyle.paddingLeft) - parseFloat(boxStyle.paddingRight) - panelWidth - cardBorders);
     const availableHeight = height - parseFloat(boxStyle.paddingTop) - parseFloat(boxStyle.paddingBottom)
       - parseFloat(cardStyle.borderTopWidth) - parseFloat(cardStyle.borderBottomWidth);
-    let ratio = Math.min(1, maxWidth / img.naturalWidth, height * .7 / img.naturalHeight);
+    // Adapter toutes les photos à l'écran, même si leur résolution est plus petite.
+    let ratio = Math.min(maxWidth / img.naturalWidth, availableHeight / img.naturalHeight);
     // Mesurer le titre et la barre de boutons à leur largeur finale, y compris si le texte est agrandi.
     for (let pass = 0; pass < 3; pass++){
       const cardWidth = Math.min(maxWidth, Math.max(Math.min(300,maxWidth), img.naturalWidth * ratio));
-      layout.style.setProperty('--photo-card-width', `${cardWidth}px`);
+      layout.style.setProperty('--photo-card-width', `${cardWidth + cardBorders}px`);
       const chromeHeight = box.querySelector('.lightbox-toolbar').getBoundingClientRect().height
         + box.querySelector('.lb-caption').getBoundingClientRect().height;
       ratio = Math.min(ratio, Math.max(1,availableHeight - chromeHeight - 2) / img.naturalHeight);
     }
+    const finalCardWidth = Math.min(maxWidth, Math.max(Math.min(300,maxWidth), img.naturalWidth * ratio));
+    layout.style.setProperty('--photo-card-width', `${finalCardWidth + cardBorders}px`);
     viewport.style.width = `${img.naturalWidth * ratio}px`;
     viewport.style.height = `${img.naturalHeight * ratio}px`;
     reset();
