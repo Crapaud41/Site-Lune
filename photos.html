@@ -109,6 +109,14 @@
     padding:3rem 0;
   }
 
+  /* Une protection opaque : aucune silhouette visible avant confirmation. */
+  .spider-hidden > img{visibility:hidden !important;}
+  .spider-notice{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:1rem;background:#171b2b;color:var(--gold-soft);text-align:center;font-size:1rem;}
+  .spider-notice[hidden]{display:none;}
+  .spider-notice button{padding:.7rem 1.1rem;border:1px solid var(--gold);background:#24293c;color:var(--ink);font:inherit;cursor:pointer;}
+  .spider-notice button:focus-visible{outline:2px solid var(--gold);outline-offset:4px;}
+  .gallery-card .spider-notice{pointer-events:none;font-size:.75rem;padding:.5rem;}
+  .gallery-card:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
   /* --- Lightbox --- */
   #lightbox{
     display:none; position:fixed; left:var(--lightbox-x,0px); top:var(--lightbox-y,0px); z-index:200;
@@ -238,6 +246,7 @@
     </div>
     <div class="image-viewport" id="imageViewport" tabindex="0" aria-label="Photo : clic gauche pour zoomer, clic droit pour dézoomer, molette ou pincement sur téléphone, puis glisser pour déplacer">
       <img id="lbImg" src="" alt="" draggable="false">
+      <div id="spiderNotice" class="spider-notice" hidden><p>Arachnophobes : ne pas ouvrir</p><button type="button" id="revealSpider">Afficher la photo</button></div>
     </div>
     <div class="lb-caption">
       <button type="button" id="recitToggle" class="recit-toggle" aria-label="Découvrir cette espèce" aria-expanded="false" aria-controls="recitPanel" hidden>?</button>
@@ -430,6 +439,16 @@ function buildFilterTabs(category){
   });
 }
 
+// Ajouter ici le chemin des autres photos d'araignées à protéger.
+const SPIDER_PHOTOS = new Set(['nature/animaux/7 juin 2023.png']);
+const revealedSpiders = new Set(); // Mémoire de cette visite uniquement : F5 réactive le masque.
+function photoKey(item){
+  return `${currentCategory}/${CATEGORY_META[currentCategory].folderSlugs[item.sub]}/${item.name}`.normalize('NFC').toLowerCase();
+}
+function spiderHidden(item){
+  const key = photoKey(item);
+  return SPIDER_PHOTOS.has(key) && !revealedSpiders.has(key);
+}
 function renderGrid(keepFade = false){
   if (!keepFade) stopFade(galleryFade);
   const meta = CATEGORY_META[currentCategory];
@@ -461,7 +480,19 @@ function renderGrid(keepFade = false){
         img.animate([{opacity:0},{opacity:1}],{duration:160,easing:'ease-out'});
       }
     },{once:true});
+    card.dataset.photoKey = photoKey(item);
+    card.classList.toggle('spider-hidden',spiderHidden(item));
     card.appendChild(img);
+    if (spiderHidden(item)){
+      const notice = document.createElement('span');
+      notice.className = 'spider-notice';
+      notice.textContent = 'Arachnophobes : ne pas ouvrir';
+      card.appendChild(notice);
+      img.alt = '';
+      card.setAttribute('role','button'); card.tabIndex = 0;
+      card.setAttribute('aria-label','Photo masquée : araignée. Ouvrir l’avertissement.');
+      card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openLightbox(idx);}});
+    }
     card.addEventListener('click', () => openLightbox(idx));
     grid.appendChild(card);
   });
@@ -570,7 +601,7 @@ const photoZoom = (() => {
   let scale = 1, x = 0, y = 0, gesture = null;
   let lastTap = null, lastTouchInput = 0;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-  const ready = () => img.naturalWidth > 0 && !img.classList.contains('loading') && !lightboxFade.busy;
+  const ready = () => !viewport.classList.contains('spider-hidden') && img.naturalWidth > 0 && !img.classList.contains('loading') && !lightboxFade.busy;
 
   function paint(){
     const width = viewport.clientWidth, height = viewport.clientHeight;
@@ -579,8 +610,8 @@ const photoZoom = (() => {
     img.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
     viewport.classList.toggle('zoomed', scale > 1);
     level.textContent = `${Number(scale.toFixed(1)).toLocaleString('fr-FR')}×`;
-    minus.disabled = resetButton.disabled = scale <= 1;
-    plus.disabled = scale >= MAX_ZOOM;
+    minus.disabled = resetButton.disabled = viewport.classList.contains('spider-hidden') || scale <= 1;
+    plus.disabled = viewport.classList.contains('spider-hidden') || scale >= MAX_ZOOM;
   }
 
   function reset(){
@@ -758,11 +789,14 @@ function openLightbox(i){
   showLightbox();
   document.getElementById('lightbox').classList.add('visible');
   photoZoom.fit();
-  document.getElementById('imageViewport').focus({preventScroll:true});
+  document.getElementById(spiderHidden(visibleItems[i]) ? 'revealSpider' : 'imageViewport').focus({preventScroll:true});
 }
 function showLightbox(){
   const item = visibleItems[lbIndex];
   if (!item || maybeEnterCrapaud(item)) return;
+  const masked = spiderHidden(item);
+  document.getElementById('imageViewport').classList.toggle('spider-hidden',masked);
+  document.getElementById('spiderNotice').hidden = !masked;
   const meta = CATEGORY_META[currentCategory];
   const desc = descriptionFor(item);
   const date = (meta.showDate && item.dateLabel) ? item.dateLabel : '';
@@ -773,7 +807,7 @@ function showLightbox(){
   img.onerror = () => {img.classList.remove('loading'); photoZoom.reset();};
   img.src = item.url;
   if (img.complete && img.naturalWidth){img.classList.remove('loading'); photoZoom.fit();}
-  img.alt = desc || meta.subLabels[item.sub];
+  img.alt = masked ? '' : desc || meta.subLabels[item.sub];
   const sub = document.getElementById('lbSub');
   sub.textContent = desc || meta.subLabels[item.sub];
   sub.style.display = '';
@@ -819,6 +853,23 @@ async function stepLightbox(d){
     }
   }
 }
+document.getElementById('revealSpider').addEventListener('click',()=>{
+  const item = visibleItems[lbIndex];
+  if (!item || !spiderHidden(item)) return;
+  revealedSpiders.add(photoKey(item));
+  document.getElementById('imageViewport').classList.remove('spider-hidden');
+  document.getElementById('spiderNotice').hidden = true;
+  document.getElementById('lbImg').alt = descriptionFor(item) || CATEGORY_META[currentCategory].subLabels[item.sub];
+  document.querySelectorAll('.gallery-card.spider-hidden').forEach(card=>{
+    if (card.dataset.photoKey !== photoKey(item)) return;
+    card.classList.remove('spider-hidden');
+    card.querySelector('.spider-notice')?.remove();
+    card.querySelector('img').alt = document.getElementById('lbImg').alt;
+    card.setAttribute('aria-label','Ouvrir la photo');
+  });
+  photoZoom.reset();
+  document.getElementById('imageViewport').focus({preventScroll:true});
+});
 function closeLightbox(){
   window.PhotoRecits?.close(false);
   stopFade(lightboxFade);
